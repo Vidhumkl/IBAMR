@@ -32,9 +32,6 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -65,20 +62,6 @@ namespace IBTK
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
 AppInitializer::AppInitializer(int argc, char* argv[], const std::string& default_log_file_name)
-    : d_input_db(NULL),
-      d_is_from_restart(false),
-      d_viz_dump_interval(0),
-      d_viz_dump_dirname(""),
-      d_viz_writers(),
-      d_visit_data_writer(NULL),
-      d_silo_data_writer(NULL),
-      d_exodus_filename("output.ex2"),
-      d_gmv_filename("output.gmv"),
-      d_restart_dump_interval(0),
-      d_restart_dump_dirname(""),
-      d_data_dump_interval(0),
-      d_data_dump_dirname(""),
-      d_timer_dump_interval(0)
 {
     if (argc == 1)
     {
@@ -91,18 +74,12 @@ AppInitializer::AppInitializer(int argc, char* argv[], const std::string& defaul
     if (argc >= 4)
     {
         // Check whether this appears to be a restarted run.
-        FILE* fstream = (SAMRAI_MPI::getRank() == 0 ? fopen(argv[2], "r") : NULL);
+        FILE* fstream = (SAMRAI_MPI::getRank() == 0 ? fopen(argv[2], "r") : nullptr);
         if (SAMRAI_MPI::bcast(fstream ? 1 : 0, 0) == 1)
         {
             d_restart_read_dirname = argv[2];
             d_restart_restore_num = atoi(argv[3]);
             d_is_from_restart = true;
-        }
-        else
-        {
-            d_restart_read_dirname = "";
-            d_restart_restore_num = 0;
-            d_is_from_restart = false;
         }
         if (fstream)
         {
@@ -125,7 +102,7 @@ AppInitializer::AppInitializer(int argc, char* argv[], const std::string& defaul
     if (d_input_db->keyExists("petsc_options_file"))
     {
         std::string petsc_options_file = d_input_db->getString("petsc_options_file");
-        PetscOptionsInsertFile(PETSC_COMM_WORLD, NULL, petsc_options_file.c_str(), PETSC_TRUE);
+        PetscOptionsInsertFile(PETSC_COMM_WORLD, nullptr, petsc_options_file.c_str(), PETSC_TRUE);
     }
 
     // Process "Main" section of the input database.
@@ -235,9 +212,9 @@ AppInitializer::AppInitializer(int argc, char* argv[], const std::string& defaul
         }
     }
 
-    for (unsigned int i = 0; i < d_viz_writers.size(); i++)
+    for (const auto& viz_writer : d_viz_writers)
     {
-        if (d_viz_writers[i] == "VisIt")
+        if (viz_writer == "VisIt")
         {
             int visit_number_procs_per_file = 1;
             if (main_db->keyExists("visit_number_procs_per_file"))
@@ -246,17 +223,17 @@ AppInitializer::AppInitializer(int argc, char* argv[], const std::string& defaul
                 new VisItDataWriter<NDIM>("VisItDataWriter", d_viz_dump_dirname, visit_number_procs_per_file);
         }
 
-        if (d_viz_writers[i] == "Silo")
+        if (viz_writer == "Silo")
         {
             d_silo_data_writer = new LSiloDataWriter("LSiloDataWriter", d_viz_dump_dirname);
         }
 
-        if (d_viz_writers[i] == "ExodusII")
+        if (viz_writer == "ExodusII")
         {
             if (main_db->keyExists("exodus_filename")) d_exodus_filename = main_db->getString("exodus_filename");
         }
 
-        if (d_viz_writers[i] == "GMV")
+        if (viz_writer == "GMV")
         {
             if (main_db->keyExists("gmv_filename")) d_gmv_filename = main_db->getString("gmv_filename");
         }

@@ -32,14 +32,13 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
+#include <array>
 #include <algorithm>
 #include <fstream>
 #include <limits>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <sstream>
-#include <stddef.h>
-#include <stdio.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -60,7 +59,6 @@
 #include "PatchLevel.h"
 #include "SideData.h"
 #include "SideIndex.h"
-#include "boost/array.hpp"
 #include "boost/multi_array.hpp"
 #include "ibamr/IBFEInstrumentPanel.h"
 #include "ibamr/IBFEMethod.h"
@@ -78,7 +76,6 @@
 #include "libmesh/dense_vector.h"
 #include "libmesh/enum_quadrature_type.h"
 #include "libmesh/equation_systems.h"
-#include "libmesh/exodusII_io.h"
 #include "libmesh/face_tri3.h"
 #include "libmesh/linear_implicit_system.h"
 #include "libmesh/mesh.h"
@@ -118,7 +115,7 @@ linear_interp(const Vector& X,
               const double* const /*x_upper*/,
               const double* const dx)
 {
-    boost::array<bool, NDIM> is_lower;
+    std::array<bool, NDIM> is_lower;
     for (unsigned int d = 0; d < NDIM; ++d)
     {
         is_lower[d] = X[d] < X_cell[d];
@@ -178,7 +175,7 @@ linear_interp(const Vector& X,
 #if !defined(NDEBUG)
     TBOX_ASSERT(v.getDepth() == N);
 #endif
-    boost::array<bool, NDIM> is_lower;
+    std::array<bool, NDIM> is_lower;
     for (unsigned int d = 0; d < NDIM; ++d)
     {
         is_lower[d] = X[d] < X_cell[d];
@@ -243,7 +240,7 @@ linear_interp(const Vector& X,
     Vector U(Vector::Zero());
     for (unsigned int axis = 0; axis < NDIM; ++axis)
     {
-        boost::array<bool, NDIM> is_lower;
+        std::array<bool, NDIM> is_lower;
         for (unsigned int d = 0; d < NDIM; ++d)
         {
             if (d == axis)
@@ -299,31 +296,7 @@ linear_interp(const Vector& X,
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
 IBFEInstrumentPanel::IBFEInstrumentPanel(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> input_db, const int part)
-    : d_num_meters(0),
-      d_quad_order(),
-      d_input_quad_order(),
-      d_meter_radii(),
-      d_use_adaptive_quadrature(),
-      d_quad_type(),
-      d_part(part),
-      d_initialized(false),
-      d_num_nodes(),
-      d_U_dof_idx(),
-      d_dX_dof_idx(),
-      d_nodes(),
-      d_node_dof_IDs(),
-      d_meter_systems(),
-      d_exodus_io(),
-      d_meter_meshes(),
-      d_meter_mesh_names(),
-      d_nodeset_IDs_for_meters(),
-      d_instrument_dump_interval(),
-      d_flow_values(),
-      d_mean_pressure_values(),
-      d_plot_directory_name(NDIM == 2 ? "viz_inst2d" : "viz_inst3d"),
-      d_mean_pressure_stream(),
-      d_flux_stream(),
-      d_quad_point_map()
+    : d_part(part), d_plot_directory_name(NDIM == 2 ? "viz_inst2d" : "viz_inst3d")
 {
     // get input data
     IBFEInstrumentPanel::getFromInput(input_db);
@@ -349,22 +322,6 @@ IBFEInstrumentPanel::IBFEInstrumentPanel(SAMRAI::tbox::Pointer<SAMRAI::tbox::Dat
     }
 }
 
-IBFEInstrumentPanel::~IBFEInstrumentPanel()
-{
-    // Close the log file stream.
-    if (SAMRAI_MPI::getRank() == 0)
-    {
-        d_mean_pressure_stream.close();
-        d_flux_stream.close();
-    }
-    // delete vectors of pointers
-    for (unsigned int ii = 0; ii < d_num_meters; ++ii)
-    {
-        delete d_exodus_io[ii];
-        delete d_meter_systems[ii];
-        delete d_meter_meshes[ii];
-    }
-}
 
 void
 IBFEInstrumentPanel::initializeHierarchyIndependentData(IBFEMethod* ib_method_ops)
@@ -430,11 +387,8 @@ IBFEInstrumentPanel::initializeHierarchyIndependentData(IBFEMethod* ib_method_op
     // on all the processes.
     for (int jj = 0; jj < d_nodeset_IDs_for_meters.size(); ++jj)
     {
-        for (std::set<dof_id_type>::iterator it = temp_node_dof_ID_sets[jj].begin();
-             it != temp_node_dof_ID_sets[jj].end();
-             ++it)
+        for (const auto& node_id : temp_node_dof_ID_sets[jj])
         {
-            const dof_id_type node_id = *it;
             temp_node_dof_IDs[jj].push_back(node_id);
             const Node* node = &mesh->node_ref(node_id);
             temp_nodes[jj].push_back(*node);
@@ -487,7 +441,7 @@ IBFEInstrumentPanel::initializeHierarchyIndependentData(IBFEMethod* ib_method_op
     // initialize meshes and number of nodes
     for (unsigned int jj = 0; jj < d_num_meters; ++jj)
     {
-        d_meter_meshes.push_back(new SerialMesh(comm_in, NDIM));
+        d_meter_meshes.emplace_back(new SerialMesh(comm_in, NDIM));
         std::ostringstream id;
         id << d_nodeset_IDs_for_meters[jj];
         d_meter_mesh_names.push_back("meter_mesh_" + id.str());
@@ -514,6 +468,7 @@ IBFEInstrumentPanel::initializeHierarchyIndependentData(IBFEMethod* ib_method_op
         {
             Elem* elem = new Tri3;
             elem->set_id(jj);
+            // libMesh will delete elem
             elem = d_meter_meshes[ii]->add_elem(elem);
             elem->set_node(0) = d_meter_meshes[ii]->node_ptr(d_num_nodes[ii]);
             elem->set_node(1) = d_meter_meshes[ii]->node_ptr(jj);
@@ -521,19 +476,17 @@ IBFEInstrumentPanel::initializeHierarchyIndependentData(IBFEMethod* ib_method_op
         }
         d_meter_meshes[ii]->allow_renumbering(false);
         d_meter_meshes[ii]->prepare_for_use();
-        d_exodus_io.push_back(new ExodusII_IO(*d_meter_meshes[ii]));
     } // loop over meters
 
     // initialize meter mesh equation systems, for both velocity and displacement
     for (unsigned int jj = 0; jj < d_num_meters; ++jj)
     {
-        d_meter_systems.push_back(new EquationSystems(*d_meter_meshes[jj]));
-        LinearImplicitSystem& velocity_sys =
-            d_meter_systems[jj]->add_system<LinearImplicitSystem>(IBFEMethod::VELOCITY_SYSTEM_NAME);
+        d_meter_systems.emplace_back(new EquationSystems(*d_meter_meshes[jj]));
+        auto& velocity_sys = d_meter_systems[jj]->add_system<LinearImplicitSystem>(IBFEMethod::VELOCITY_SYSTEM_NAME);
         velocity_sys.add_variable("U_0", static_cast<Order>(1), LAGRANGE);
         velocity_sys.add_variable("U_1", static_cast<Order>(1), LAGRANGE);
         velocity_sys.add_variable("U_2", static_cast<Order>(1), LAGRANGE);
-        LinearImplicitSystem& displacement_sys =
+        auto& displacement_sys =
             d_meter_systems[jj]->add_system<LinearImplicitSystem>(IBFEMethod::COORD_MAPPING_SYSTEM_NAME);
         displacement_sys.add_variable("dX_0", static_cast<Order>(1), LAGRANGE);
         displacement_sys.add_variable("dX_1", static_cast<Order>(1), LAGRANGE);
@@ -600,7 +553,7 @@ IBFEInstrumentPanel::initializeHierarchyDependentData(IBFEMethod* ib_method_ops,
 
     // get the finest spacing of fluid grid
     const IntVector<NDIM>& ratio_to_level_zero = hierarchy->getPatchLevel(finest_ln)->getRatio();
-    boost::array<double, NDIM> dx_finest;
+    std::array<double, NDIM> dx_finest;
     for (unsigned int d = 0; d < NDIM; ++d)
     {
         dx_finest[d] = dx_coarsest[d] / static_cast<double>(ratio_to_level_zero(d));
@@ -636,19 +589,19 @@ IBFEInstrumentPanel::initializeHierarchyDependentData(IBFEMethod* ib_method_ops,
         const Box<NDIM> domain_box_level = Box<NDIM>::refine(domain_box, ratio);
         const Index<NDIM>& domain_box_level_lower = domain_box_level.lower();
         const Index<NDIM>& domain_box_level_upper = domain_box_level.upper();
-        boost::array<double, NDIM> dx;
+        std::array<double, NDIM> dx;
         for (unsigned int d = 0; d < NDIM; ++d)
         {
             dx[d] = dx_coarsest[d] / static_cast<double>(ratio(d));
         }
 
         Pointer<PatchLevel<NDIM> > finer_level =
-            (ln < finest_ln ? hierarchy->getPatchLevel(ln + 1) : Pointer<BasePatchLevel<NDIM> >(NULL));
+            (ln < finest_ln ? hierarchy->getPatchLevel(ln + 1) : Pointer<BasePatchLevel<NDIM> >(nullptr));
         const IntVector<NDIM>& finer_ratio = (ln < finest_ln ? finer_level->getRatio() : IntVector<NDIM>(1));
         const Box<NDIM> finer_domain_box_level = Box<NDIM>::refine(domain_box, finer_ratio);
         const Index<NDIM>& finer_domain_box_level_lower = finer_domain_box_level.lower();
         const Index<NDIM>& finer_domain_box_level_upper = finer_domain_box_level.upper();
-        boost::array<double, NDIM> finer_dx;
+        std::array<double, NDIM> finer_dx;
         for (unsigned int d = 0; d < NDIM; ++d)
         {
             finer_dx[d] = dx_coarsest[d] / static_cast<double>(finer_ratio(d));
@@ -700,7 +653,7 @@ IBFEInstrumentPanel::initializeHierarchyDependentData(IBFEMethod* ib_method_ops,
                 for (unsigned int d = 0; d < NDIM; ++d) normal[d] = normal_temp(d);
 
                 // loop over quadrature points, compute their physical locations
-                // after displacement, and stores their indices.
+                // after displacement, and store their indices.
                 for (unsigned int qp = 0; qp < qp_points.size(); ++qp)
                 {
                     Vector qp_temp;
@@ -805,7 +758,7 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
                     );
                     if (U_cc_data)
                     {
-                        for (QuadPointMap::const_iterator it = qp_range.first; it != qp_range.second; ++it)
+                        for (auto it = qp_range.first; it != qp_range.second; ++it)
                         {
                             const int& meter_num = it->second.meter_num;
                             const double& JxW = it->second.JxW;
@@ -818,7 +771,7 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
                     }
                     if (U_sc_data)
                     {
-                        for (QuadPointMap::const_iterator it = qp_range.first; it != qp_range.second; ++it)
+                        for (auto it = qp_range.first; it != qp_range.second; ++it)
                         {
                             const int& meter_num = it->second.meter_num;
                             const double& JxW = it->second.JxW;
@@ -831,7 +784,7 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
                     }
                     if (P_cc_data)
                     {
-                        for (QuadPointMap::const_iterator it = qp_range.first; it != qp_range.second; ++it)
+                        for (auto it = qp_range.first; it != qp_range.second; ++it)
                         {
                             const int& meter_num = it->second.meter_num;
                             const double& JxW = it->second.JxW;
@@ -965,18 +918,52 @@ IBFEInstrumentPanel::getFromInput(Pointer<Database> db)
     return;
 }
 
-void
-IBFEInstrumentPanel::outputMeterMeshes(IBFEMethod* ib_method_ops, const int timestep_num, const double data_time)
-{
-    // things to do at initial timestep
-    if (timestep_num == 1) outputNodes();
-    outputExodus(ib_method_ops, timestep_num, data_time);
-}
-
 int
 IBFEInstrumentPanel::getInstrumentDumpInterval() const
 {
     return d_instrument_dump_interval;
+}
+
+std::string
+IBFEInstrumentPanel::getPlotDirectoryName() const
+{
+    return d_plot_directory_name;
+}
+
+int
+IBFEInstrumentPanel::getNumberOfMeterMeshes() const
+{
+    return d_num_meters;
+}
+
+MeshBase&
+IBFEInstrumentPanel::getMeterMesh(const unsigned int jj) const
+{
+    return *d_meter_meshes[jj];
+}
+
+EquationSystems&
+IBFEInstrumentPanel::getMeterMeshEquationSystems(const unsigned int jj) const
+{
+    return *d_meter_systems[jj];
+}
+
+const std::string&
+IBFEInstrumentPanel::getMeterMeshName(const unsigned int jj) const
+{
+    return d_meter_mesh_names[jj];
+}
+
+const std::vector<libMesh::Point>&
+IBFEInstrumentPanel::getMeterMeshNodes(const unsigned int jj) const
+{
+    return d_nodes[jj];
+}
+
+Order
+IBFEInstrumentPanel::getMeterMeshQuadOrder(const unsigned int jj) const
+{
+    return d_quad_order[jj];
 }
 
 /////////////////////////////// PRIVATE //////////////////////////////////////
@@ -996,13 +983,13 @@ IBFEInstrumentPanel::initializeSystemDependentData(IBFEMethod* ib_method_ops, co
     U_system.update_global_solution(U_coords_parent);
 
     // get displacement and velocity systems for meter mesh
-    LinearImplicitSystem& velocity_sys =
+    auto& velocity_sys =
         d_meter_systems[meter_mesh_number]->get_system<LinearImplicitSystem>(IBFEMethod::VELOCITY_SYSTEM_NAME);
     const unsigned int velocity_sys_num = velocity_sys.number();
     NumericVector<double>& velocity_solution = *velocity_sys.solution;
     NumericVector<double>& velocity_coords = velocity_sys.get_vector("serial solution");
 
-    LinearImplicitSystem& displacement_sys =
+    auto& displacement_sys =
         d_meter_systems[meter_mesh_number]->get_system<LinearImplicitSystem>(IBFEMethod::COORD_MAPPING_SYSTEM_NAME);
     const unsigned int displacement_sys_num = displacement_sys.number();
     NumericVector<double>& displacement_solution = *displacement_sys.solution;
@@ -1053,7 +1040,7 @@ IBFEInstrumentPanel::initializeSystemDependentData(IBFEMethod* ib_method_ops, co
         displacement_coords.set(disp_dof_idx, mean_dX_dofs[d]);
     }
 
-    // also populate solution vector in the system for exodus IO
+    // also populate solution vector in the system
     MeshBase::const_node_iterator node_it = d_meter_meshes[meter_mesh_number]->local_nodes_begin();
     const MeshBase::const_node_iterator end_node_it = d_meter_meshes[meter_mesh_number]->local_nodes_end();
     for (; node_it != end_node_it; ++node_it)
@@ -1094,9 +1081,9 @@ IBFEInstrumentPanel::initializeSystemDependentData(IBFEMethod* ib_method_ops, co
         double radius_squared = 0.0;
         for (unsigned int d = 0; d < NDIM; ++d)
         {
-            radius_squared += pow((*centroid_node)(d) + centroid_disp[d] - (*node)(d) + node_disp[d], 2.0);
+            radius_squared += std::pow((*centroid_node)(d) + centroid_disp[d] - (*node)(d) + node_disp[d], 2.0);
         }
-        max_meter_radius = std::max(pow(radius_squared, 0.5), max_meter_radius);
+        max_meter_radius = std::max(std::pow(radius_squared, 0.5), max_meter_radius);
     }
     d_meter_radii[meter_mesh_number] = max_meter_radius;
 }
@@ -1123,40 +1110,6 @@ IBFEInstrumentPanel::outputData(const double data_time)
         }
         d_mean_pressure_stream << "\n";
         d_flux_stream << "\n";
-    }
-}
-
-void
-IBFEInstrumentPanel::outputExodus(IBFEMethod* ib_method_ops, const int timestep, const double loop_time)
-{
-    for (unsigned int ii = 0; ii < d_num_meters; ++ii)
-    {
-        initializeSystemDependentData(ib_method_ops, ii);
-        std::ostringstream mesh_output;
-        mesh_output << d_plot_directory_name << "/"
-                    << "" << d_meter_mesh_names[ii] << ".ex2";
-        d_exodus_io[ii]->write_timestep(mesh_output.str(), *d_meter_systems[ii], timestep, loop_time);
-    }
-}
-
-void
-IBFEInstrumentPanel::outputNodes()
-{
-    for (unsigned int ii = 0; ii < d_num_meters; ++ii)
-    {
-        std::ofstream stuff_stream;
-        std::ostringstream node_output;
-        node_output << d_plot_directory_name << "/"
-                    << "" << d_meter_mesh_names[ii] << "_nodes.dat";
-        if (SAMRAI_MPI::getRank() == 0)
-        {
-            stuff_stream.open(node_output.str().c_str());
-            for (unsigned int dd = 0; dd < d_nodes[ii].size(); ++dd)
-            {
-                stuff_stream << d_nodes[ii][dd](0) << " " << d_nodes[ii][dd](1) << " " << d_nodes[ii][dd](2) << "\n";
-            }
-            stuff_stream.close();
-        }
     }
 }
 

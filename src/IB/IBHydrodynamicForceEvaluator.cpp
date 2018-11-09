@@ -31,6 +31,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
+#include <array>
 
 #include "ibamr/IBHydrodynamicForceEvaluator.h"
 #include "ArrayDataBasicOps.h"
@@ -42,7 +43,6 @@
 #include "PatchHierarchy.h"
 #include "SideData.h"
 #include "SideIndex.h"
-#include "boost/array.hpp"
 #include "ibamr/INSStaggeredPressureBcCoef.h"
 #include "ibamr/namespaces.h"
 #include "ibtk/HierarchyGhostCellInterpolation.h"
@@ -58,17 +58,13 @@ namespace IBAMR
 
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
-IBHydrodynamicForceEvaluator::IBHydrodynamicForceEvaluator(const std::string& object_name,
+IBHydrodynamicForceEvaluator::IBHydrodynamicForceEvaluator(std::string object_name,
                                                            double rho,
                                                            double mu,
                                                            double current_time,
                                                            bool register_for_restart)
+    : d_object_name(std::move(object_name)), d_rho(rho), d_mu(mu), d_current_time(current_time)
 {
-    d_object_name = object_name;
-    d_rho = rho;
-    d_mu = mu;
-    d_current_time = current_time;
-
     VariableDatabase<NDIM>* var_db = VariableDatabase<NDIM>::getDatabase();
     d_u_var = new SideVariable<NDIM, double>(d_object_name + "::u_var", 1);
     d_p_var = new CellVariable<NDIM, double>(d_object_name + "::p_var", 1);
@@ -316,7 +312,7 @@ IBHydrodynamicForceEvaluator::computeLaggedMomentumIntegral(
 {
     resetFaceAreaWeight(patch_hierarchy);
     resetFaceVolWeight(patch_hierarchy);
-    fillPatchData(u_old_idx, -1, patch_hierarchy, u_src_bc_coef, NULL, d_current_time);
+    fillPatchData(u_old_idx, -1, patch_hierarchy, u_src_bc_coef, nullptr, d_current_time);
 
     const int coarsest_ln = 0;
     const int finest_ln = patch_hierarchy->getFinestLevelNumber();
@@ -324,9 +320,9 @@ IBHydrodynamicForceEvaluator::computeLaggedMomentumIntegral(
     // Whether or not the simulation has adaptive mesh refinement
     const bool amr_case = (coarsest_ln != finest_ln);
 
-    for (std::map<int, IBHydrodynamicForceObject>::iterator it = d_hydro_objs.begin(); it != d_hydro_objs.end(); ++it)
+    for (auto& hydro_obj : d_hydro_objs)
     {
-        IBHydrodynamicForceObject& fobj = it->second;
+        IBHydrodynamicForceObject& fobj = hydro_obj.second;
 
         // Compute the momentum integral:= (rho * u * dv) for the previous time step (integral is over new control
         // volume)
@@ -493,9 +489,9 @@ IBHydrodynamicForceEvaluator::computeHydrodynamicForce(int u_idx,
     // Whether or not the simulation has adaptive mesh refinement
     const bool amr_case = (coarsest_ln != finest_ln);
 
-    for (std::map<int, IBHydrodynamicForceObject>::iterator it = d_hydro_objs.begin(); it != d_hydro_objs.end(); ++it)
+    for (auto& hydro_obj : d_hydro_objs)
     {
-        IBHydrodynamicForceObject& fobj = it->second;
+        IBHydrodynamicForceObject& fobj = hydro_obj.second;
 
         // Compute the momentum integral:= (rho * u * dv)
         fobj.P_box_new.setZero();
@@ -642,7 +638,7 @@ IBHydrodynamicForceEvaluator::computeHydrodynamicForce(int u_idx,
                 if (!boxes_intersect) continue;
 
                 // Store boxes corresponding to integration domain boundaries.
-                boost::array<boost::array<Box<NDIM>, 2>, NDIM> bdry_boxes;
+                std::array<std::array<Box<NDIM>, 2>, NDIM> bdry_boxes;
                 for (int axis = 0; axis < NDIM; ++axis)
                 {
                     Box<NDIM> bdry_box;
@@ -790,9 +786,9 @@ IBHydrodynamicForceEvaluator::computeHydrodynamicForce(int u_idx,
 void
 IBHydrodynamicForceEvaluator::postprocessIntegrateData(double /*current_time*/, double new_time)
 {
-    for (std::map<int, IBHydrodynamicForceObject>::iterator it = d_hydro_objs.begin(); it != d_hydro_objs.end(); ++it)
+    for (auto& hydro_obj : d_hydro_objs)
     {
-        IBHydrodynamicForceObject& force_obj = it->second;
+        IBHydrodynamicForceObject& force_obj = hydro_obj.second;
 
         // Output drag and torque to stream
         if (SAMRAI_MPI::getRank() == 0)
@@ -822,11 +818,10 @@ IBHydrodynamicForceEvaluator::postprocessIntegrateData(double /*current_time*/, 
 void
 IBHydrodynamicForceEvaluator::putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db)
 {
-    for (std::map<int, IBHydrodynamicForceObject>::const_iterator it = d_hydro_objs.begin(); it != d_hydro_objs.end();
-         ++it)
+    for (const auto& hydro_obj : d_hydro_objs)
     {
-        int strct_id = it->first;
-        const IBHydrodynamicForceObject& force_obj = it->second;
+        int strct_id = hydro_obj.first;
+        const IBHydrodynamicForceObject& force_obj = hydro_obj.second;
 
         std::ostringstream F, T, P, L, P_box, L_box, X_lo, X_hi, r_or, vol_curr;
         F << "F_" << strct_id;
@@ -1232,7 +1227,7 @@ IBHydrodynamicForceEvaluator::fillPatchData(const int u_src_idx,
             hier_data_ops_manager->getOperationsDouble(d_u_var, patch_hierarchy, true);
         hier_sc_data_ops->copyData(d_u_idx, u_src_idx, true);
 
-        typedef HierarchyGhostCellInterpolation::InterpolationTransactionComponent InterpolationTransactionComponent;
+        using InterpolationTransactionComponent = HierarchyGhostCellInterpolation::InterpolationTransactionComponent;
         std::vector<InterpolationTransactionComponent> transaction_comp(1);
         transaction_comp[0] = InterpolationTransactionComponent(d_u_idx,
                                                                 u_src_idx,
@@ -1242,7 +1237,7 @@ IBHydrodynamicForceEvaluator::fillPatchData(const int u_src_idx,
                                                                 /*BDRY_EXTRAP_TYPE*/ "LINEAR",
                                                                 /*CONSISTENT_TYPE_2_BDRY*/ false,
                                                                 u_src_bc_coef,
-                                                                Pointer<VariableFillPattern<NDIM> >(NULL));
+                                                                Pointer<VariableFillPattern<NDIM> >(nullptr));
 
         Pointer<HierarchyGhostCellInterpolation> hier_bdry_fill = new HierarchyGhostCellInterpolation();
         hier_bdry_fill->initializeOperatorState(transaction_comp, patch_hierarchy);
@@ -1259,13 +1254,13 @@ IBHydrodynamicForceEvaluator::fillPatchData(const int u_src_idx,
             hier_data_ops_manager->getOperationsDouble(d_p_var, patch_hierarchy, true);
         hier_cc_data_ops->copyData(d_p_idx, p_src_idx, true);
 
-        INSStaggeredPressureBcCoef* p_ins_bc_coef = dynamic_cast<INSStaggeredPressureBcCoef*>(p_src_bc_coef);
+        auto p_ins_bc_coef = dynamic_cast<INSStaggeredPressureBcCoef*>(p_src_bc_coef);
 #if !defined(NDEBUG)
         TBOX_ASSERT(p_ins_bc_coef);
 #endif
         p_ins_bc_coef->setTargetVelocityPatchDataIndex(d_u_idx);
 
-        typedef HierarchyGhostCellInterpolation::InterpolationTransactionComponent InterpolationTransactionComponent;
+        using InterpolationTransactionComponent = HierarchyGhostCellInterpolation::InterpolationTransactionComponent;
         std::vector<InterpolationTransactionComponent> transaction_comp(1);
         transaction_comp[0] = InterpolationTransactionComponent(d_p_idx,
                                                                 p_src_idx,
@@ -1275,7 +1270,7 @@ IBHydrodynamicForceEvaluator::fillPatchData(const int u_src_idx,
                                                                 /*BDRY_EXTRAP_TYPE*/ "LINEAR",
                                                                 /*CONSISTENT_TYPE_2_BDRY*/ false,
                                                                 p_ins_bc_coef,
-                                                                Pointer<VariableFillPattern<NDIM> >(NULL));
+                                                                Pointer<VariableFillPattern<NDIM> >(nullptr));
         Pointer<HierarchyGhostCellInterpolation> hier_bdry_fill = new HierarchyGhostCellInterpolation();
         hier_bdry_fill->initializeOperatorState(transaction_comp, patch_hierarchy);
         hier_bdry_fill->setHomogeneousBc(false);

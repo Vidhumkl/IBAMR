@@ -44,22 +44,7 @@ namespace IBTK
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
 FEDataInterpolation::FEDataInterpolation(const unsigned int dim, FEDataManager* const fe_data_manager)
-    : d_dim(dim),
-      d_fe_data_manager(fe_data_manager),
-      d_initialized(false),
-      d_eval_q_point(false),
-      d_eval_JxW(false),
-      d_eval_q_point_face(false),
-      d_eval_JxW_face(false),
-      d_eval_normal_face(false),
-      d_qrule(NULL),
-      d_qrule_face(NULL),
-      d_q_point(NULL),
-      d_q_point_face(NULL),
-      d_JxW(NULL),
-      d_JxW_face(NULL),
-      d_normal_face(NULL),
-      d_current_elem(NULL)
+    : d_dim(dim), d_fe_data_manager(fe_data_manager)
 {
     return;
 }
@@ -76,9 +61,7 @@ FEDataInterpolation::registerSystem(const System& system,
 {
     TBOX_ASSERT(!d_initialized && (!phi_vars.empty() || !dphi_vars.empty()));
     const unsigned int sys_num = system.number();
-    for (std::vector<const System *>::iterator it = d_noninterp_systems.begin(), it_end = d_noninterp_systems.end();
-         it != it_end;
-         ++it)
+    for (auto it = d_noninterp_systems.begin(), it_end = d_noninterp_systems.end(); it != it_end; ++it)
     {
         if ((*it)->number() == sys_num)
         {
@@ -128,7 +111,7 @@ FEDataInterpolation::registerInterpolatedSystem(const System& system,
 {
     TBOX_ASSERT(!d_initialized && (!vars.empty() || !grad_vars.empty()));
     const unsigned int sys_num = system.number();
-    for (std::vector<const System *>::iterator it = d_systems.begin(), it_end = d_systems.end(); it != it_end; ++it)
+    for (auto it = d_systems.begin(), it_end = d_systems.end(); it != it_end; ++it)
     {
         if ((*it)->number() == sys_num)
         {
@@ -227,9 +210,9 @@ FEDataInterpolation::init(const bool use_IB_ghosted_vecs)
         const System& system = *d_systems[system_idx];
         const DofMap& system_dof_map = system.get_dof_map();
         const std::vector<int>& all_vars = d_system_all_vars[system_idx];
-        for (unsigned int k = 0; k < all_vars.size(); ++k)
+        for (const auto& var : all_vars)
         {
-            fe_type_set.insert(system_dof_map.variable_type(all_vars[k]));
+            fe_type_set.insert(system_dof_map.variable_type(var));
         }
     }
     const size_t num_noninterp_systems = d_noninterp_systems.size();
@@ -238,9 +221,9 @@ FEDataInterpolation::init(const bool use_IB_ghosted_vecs)
         const System& system = *d_noninterp_systems[system_idx];
         const DofMap& system_dof_map = system.get_dof_map();
         const std::vector<int>& all_vars = d_noninterp_system_all_vars[system_idx];
-        for (unsigned int k = 0; k < all_vars.size(); ++k)
+        for (const auto& var : all_vars)
         {
-            fe_type_set.insert(system_dof_map.variable_type(all_vars[k]));
+            fe_type_set.insert(system_dof_map.variable_type(var));
         }
     }
     d_fe_types.assign(fe_type_set.begin(), fe_type_set.end());
@@ -263,8 +246,7 @@ FEDataInterpolation::init(const bool use_IB_ghosted_vecs)
         {
             NumericVector<double>* ghost_data =
                 d_fe_data_manager->buildGhostedSolutionVector(system.name(), /*synch_data*/ false);
-            system_data->localize(*ghost_data);
-            ghost_data->close();
+            copy_and_synch(*system_data, *ghost_data, /*close_v_in*/ false);
             system_data = ghost_data;
         }
 
@@ -294,17 +276,17 @@ FEDataInterpolation::init(const bool use_IB_ghosted_vecs)
         const DofMap& system_dof_map = system.get_dof_map();
 
         const std::vector<int>& phi_vars = d_noninterp_system_phi_vars[system_idx];
-        for (unsigned int k = 0; k < phi_vars.size(); ++k)
+        for (const auto& phi_var : phi_vars)
         {
-            const FEType& fe_type = system_dof_map.variable_type(phi_vars[k]);
+            const FEType& fe_type = system_dof_map.variable_type(phi_var);
             const size_t fe_type_idx = getFETypeIndex(fe_type);
             d_eval_phi[fe_type_idx] = true;
         }
 
         const std::vector<int>& dphi_vars = d_noninterp_system_dphi_vars[system_idx];
-        for (unsigned int k = 0; k < dphi_vars.size(); ++k)
+        for (const auto& dphi_var : dphi_vars)
         {
-            const FEType& fe_type = system_dof_map.variable_type(dphi_vars[k]);
+            const FEType& fe_type = system_dof_map.variable_type(dphi_var);
             const size_t fe_type_idx = getFETypeIndex(fe_type);
             d_eval_dphi[fe_type_idx] = true;
         }
@@ -313,10 +295,10 @@ FEDataInterpolation::init(const bool use_IB_ghosted_vecs)
     // Set up FE objects and request access to shape functions / gradients, as needed.
     d_fe.resize(num_fe_types);
     d_fe_face.resize(num_fe_types);
-    d_phi.resize(num_fe_types, NULL);
-    d_dphi.resize(num_fe_types, NULL);
-    d_phi_face.resize(num_fe_types, NULL);
-    d_dphi_face.resize(num_fe_types, NULL);
+    d_phi.resize(num_fe_types, nullptr);
+    d_dphi.resize(num_fe_types, nullptr);
+    d_phi_face.resize(num_fe_types, nullptr);
+    d_dphi_face.resize(num_fe_types, nullptr);
     for (unsigned int fe_type_idx = 0; fe_type_idx < num_fe_types; ++fe_type_idx)
     {
         Pointer<FEBase>& fe = d_fe[fe_type_idx];
@@ -480,7 +462,7 @@ FEDataInterpolation::interpolateCommon(
         // Interpolate regular variables.
         {
             const std::vector<size_t>& var_idxs = d_system_var_idx[system_idx];
-            const unsigned int n_vars = static_cast<unsigned int>(var_idxs.size());
+            const auto n_vars = static_cast<unsigned int>(var_idxs.size());
             for (unsigned int qp = 0; qp < n_qp; ++qp)
             {
                 system_var_data[qp][system_idx].resize(n_vars);
@@ -505,7 +487,7 @@ FEDataInterpolation::interpolateCommon(
         // Interpolate gradient variables.
         {
             const std::vector<size_t>& grad_var_idxs = d_system_grad_var_idx[system_idx];
-            const unsigned int n_grad_vars = static_cast<unsigned int>(grad_var_idxs.size());
+            const auto n_grad_vars = static_cast<unsigned int>(grad_var_idxs.size());
             for (unsigned int qp = 0; qp < n_qp; ++qp)
             {
                 system_grad_var_data[qp][system_idx].resize(n_grad_vars);

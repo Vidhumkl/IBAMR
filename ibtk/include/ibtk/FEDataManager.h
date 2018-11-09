@@ -35,13 +35,12 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
-#include <stdbool.h>
-#include <stddef.h>
 #include <map>
 #include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "BasePatchLevel.h"
 #include "CellVariable.h"
@@ -53,7 +52,6 @@
 #include "StandardTagAndInitStrategy.h"
 #include "VariableContext.h"
 #include "boost/multi_array.hpp"
-#include "boost/unordered_map.hpp"
 #include "ibtk/ibtk_utilities.h"
 #include "libmesh/dof_map.h"
 #include "libmesh/elem.h"
@@ -113,9 +111,7 @@ public:
         {
         }
 
-        inline ~SystemDofMapCache()
-        {
-        }
+        inline ~SystemDofMapCache() = default;
 
         inline void
         dof_indices(const libMesh::Elem* const elem, std::vector<unsigned int>& dof_indices, const unsigned int var = 0)
@@ -136,7 +132,7 @@ public:
 
     private:
         libMesh::DofMap& d_dof_map;
-        boost::unordered_map<libMesh::dof_id_type, std::vector<std::vector<unsigned int> > > d_dof_cache;
+        std::unordered_map<libMesh::dof_id_type, std::vector<std::vector<unsigned int> > > d_dof_cache;
     };
 
     /*!
@@ -146,9 +142,7 @@ public:
      */
     struct InterpSpec
     {
-        InterpSpec()
-        {
-        }
+        InterpSpec() = default;
 
         InterpSpec(const std::string& kernel_fcn,
                    const libMesh::QuadratureType& quad_type,
@@ -183,9 +177,7 @@ public:
      */
     struct SpreadSpec
     {
-        SpreadSpec()
-        {
-        }
+        SpreadSpec() = default;
 
         SpreadSpec(const std::string& kernel_fcn,
                    const libMesh::QuadratureType& quad_type,
@@ -216,7 +208,7 @@ public:
      *
      * \note The default value for this string is "coordinates system".
      */
-    std::string COORDINATES_SYSTEM_NAME;
+    std::string COORDINATES_SYSTEM_NAME = "coordinates system";
 
     /*!
      * \brief The libMesh boundary IDs to use for specifying essential boundary
@@ -606,7 +598,7 @@ public:
                              bool initial_time,
                              SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchLevel<NDIM> > old_level =
                                  SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchLevel<NDIM> >(NULL),
-                             bool allocate_data = true);
+                             bool allocate_data = true) override;
 
     /*!
      * Reset cached communication schedules after the hierarchy has changed (for
@@ -625,7 +617,7 @@ public:
      */
     void resetHierarchyConfiguration(SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchHierarchy<NDIM> > hierarchy,
                                      int coarsest_ln,
-                                     int finest_ln);
+                                     int finest_ln) override;
 
     /*!
      * Set integer tags to "one" in cells where refinement of the given level
@@ -650,23 +642,23 @@ public:
                                double error_data_time,
                                int tag_index,
                                bool initial_time,
-                               bool uses_richardson_extrapolation_too);
+                               bool uses_richardson_extrapolation_too) override;
 
     /*!
      * Write out object state to the given database.
      *
      * When assertion checking is active, database pointer must be non-null.
      */
-    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db);
+    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db) override;
 
 protected:
     /*!
      * \brief Constructor.
      */
-    FEDataManager(const std::string& object_name,
-                  const InterpSpec& default_interp_spec,
-                  const SpreadSpec& default_spread_spec,
-                  const SAMRAI::hier::IntVector<NDIM>& ghost_width,
+    FEDataManager(std::string object_name,
+                  InterpSpec default_interp_spec,
+                  SpreadSpec default_spread_spec,
+                  SAMRAI::hier::IntVector<NDIM> ghost_width,
                   bool register_for_restart = true);
 
     /*!
@@ -680,7 +672,7 @@ private:
      *
      * \note This constructor is not implemented and should not be used.
      */
-    FEDataManager();
+    FEDataManager() = delete;
 
     /*!
      * \brief Copy constructor.
@@ -689,7 +681,7 @@ private:
      *
      * \param from The value to copy to this object.
      */
-    FEDataManager(const FEDataManager& from);
+    FEDataManager(const FEDataManager& from) = delete;
 
     /*!
      * \brief Assignment operator.
@@ -700,7 +692,7 @@ private:
      *
      * \return A reference to this object.
      */
-    FEDataManager& operator=(const FEDataManager& that);
+    FEDataManager& operator=(const FEDataManager& that) = delete;
 
     /*!
      * Compute the quadrature point counts in each cell of the level in which
@@ -782,7 +774,7 @@ private:
      * Grid hierarchy information.
      */
     SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > d_hierarchy;
-    int d_coarsest_ln, d_finest_ln;
+    int d_coarsest_ln = IBTK::invalid_level_number, d_finest_ln = IBTK::invalid_level_number;
 
     /*
      * SAMRAI::hier::VariableContext object used for data management.
@@ -827,8 +819,8 @@ private:
     /*
      * FE equation system associated with this data manager object.
      */
-    libMesh::EquationSystems* d_es;
-    int d_level_number;
+    libMesh::EquationSystems* d_es = nullptr;
+    int d_level_number = IBTK::invalid_level_number;
     std::map<unsigned int, SAMRAI::tbox::Pointer<SystemDofMapCache> > d_system_dof_map_cache;
 
     /*

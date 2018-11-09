@@ -33,7 +33,7 @@
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "CartesianGridGeometry.h"
 #include "PatchHierarchy.h"
@@ -116,19 +116,11 @@ static Timer* t_deallocate_solver_state;
 
 ////////////////////////////// PUBLIC ////////////////////////////////////////
 
-DirectMobilitySolver::DirectMobilitySolver(const std::string& object_name,
+DirectMobilitySolver::DirectMobilitySolver(std::string object_name,
                                            Pointer<Database> input_db,
                                            Pointer<CIBStrategy> cib_strategy)
-
+    : d_object_name(std::move(object_name)), d_cib_strategy(cib_strategy)
 {
-    d_object_name = object_name;
-    d_cib_strategy = cib_strategy;
-
-    // Some default values
-    d_is_initialized = false;
-    d_recompute_mob_mat = false;
-    d_f_periodic_corr = 0.0;
-
     // Get from input
     if (input_db) getFromInput(input_db);
 
@@ -145,42 +137,36 @@ DirectMobilitySolver::DirectMobilitySolver(const std::string& object_name,
 
 DirectMobilitySolver::~DirectMobilitySolver()
 {
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         Mat& mobility_mat = d_petsc_mat_map[mat_name].first;
         Mat& body_mobility_mat = d_petsc_mat_map[mat_name].second;
         MatDestroy(&mobility_mat);
         MatDestroy(&body_mobility_mat);
     }
 
-    for (std::map<std::string, std::pair<double*, double*> >::iterator it = d_mat_map.begin(); it != d_mat_map.end();
-         ++it)
+    for (const auto& mat_pair : d_mat_map)
     {
-        delete[](it->second).first;
-        delete[](it->second).second;
+        delete[](mat_pair.second).first;
+        delete[](mat_pair.second).second;
     }
 
-    for (std::map<std::string, Mat>::iterator it = d_petsc_geometric_mat_map.begin();
-         it != d_petsc_geometric_mat_map.end();
-         ++it)
+    for (const auto& mat_pair : d_petsc_geometric_mat_map)
     {
-        Mat& geometric_mat = d_petsc_geometric_mat_map[it->first];
+        Mat& geometric_mat = d_petsc_geometric_mat_map[mat_pair.first];
         MatDestroy(&geometric_mat);
     }
 
-    for (std::map<std::string, double*>::iterator it = d_geometric_mat_map.begin(); it != d_geometric_mat_map.end();
-         ++it)
+    for (const auto& mat_pair : d_geometric_mat_map)
     {
-        delete[] it->second;
+        delete[] mat_pair.second;
     }
 
-    for (std::map<std::string, std::pair<int*, int*> >::iterator it = d_ipiv_map.begin(); it != d_ipiv_map.end(); ++it)
+    for (const auto& mat_pair : d_ipiv_map)
     {
-        delete[](it->second).first;
-        delete[](it->second).second;
+        delete[](mat_pair.second).first;
+        delete[](mat_pair.second).second;
     }
 
     d_is_initialized = false;
@@ -219,9 +205,9 @@ DirectMobilitySolver::registerMobilityMat(const std::string& mat_name,
 {
 #if !defined(NDEBUG)
     TBOX_ASSERT(!mat_name.empty());
-    for (unsigned k = 0; k < prototype_struct_ids.size(); ++k)
+    for (const auto& prototype_struct_id : prototype_struct_ids)
     {
-        TBOX_ASSERT(prototype_struct_ids[k] < d_cib_strategy->getNumberOfRigidStructures());
+        TBOX_ASSERT(prototype_struct_id < d_cib_strategy->getNumberOfRigidStructures());
     }
     TBOX_ASSERT(d_mat_map.find(mat_name) == d_mat_map.end());
     TBOX_ASSERT(mat_type != UNKNOWN_MOBILITY_MATRIX_TYPE);
@@ -230,9 +216,9 @@ DirectMobilitySolver::registerMobilityMat(const std::string& mat_name,
 #endif
 
     unsigned int num_nodes = 0;
-    for (unsigned k = 0; k < prototype_struct_ids.size(); ++k)
+    for (const auto& prototype_struct_id : prototype_struct_ids)
     {
-        num_nodes += d_cib_strategy->getNumberOfNodes(prototype_struct_ids[k]);
+        num_nodes += d_cib_strategy->getNumberOfNodes(prototype_struct_id);
     }
 
     // Fill-in various maps.
@@ -244,11 +230,11 @@ DirectMobilitySolver::registerMobilityMat(const std::string& mat_name,
     d_mat_inv_type_map[mat_name] = inv_type;
     d_mat_filename_map[mat_name] = filename;
     d_mat_scale_map[mat_name] = scale;
-    d_mat_map[mat_name] = std::make_pair<double*, double*>(NULL, NULL);
-    d_geometric_mat_map[mat_name] = NULL;
-    d_ipiv_map[mat_name] = std::make_pair<int*, int*>(NULL, NULL);
-    d_petsc_mat_map[mat_name] = std::make_pair<Mat, Mat>(NULL, NULL);
-    d_petsc_geometric_mat_map[mat_name] = NULL;
+    d_mat_map[mat_name] = std::make_pair<double*, double*>(nullptr, nullptr);
+    d_geometric_mat_map[mat_name] = nullptr;
+    d_ipiv_map[mat_name] = std::make_pair<int*, int*>(nullptr, nullptr);
+    d_petsc_mat_map[mat_name] = std::make_pair<Mat, Mat>(nullptr, nullptr);
+    d_petsc_geometric_mat_map[mat_name] = nullptr;
 
     // Allocate the actual matrices.
     const int mobility_mat_size = num_nodes * NDIM;
@@ -297,15 +283,15 @@ DirectMobilitySolver::registerStructIDsWithMobilityMat(const std::string& mat_na
 {
 #if !defined(NDEBUG)
     TBOX_ASSERT(d_mat_map.find(mat_name) != d_mat_map.end());
-    for (unsigned i = 0; i < struct_ids.size(); ++i)
+    for (const auto& struct_id : struct_ids)
     {
-        TBOX_ASSERT(struct_ids[i].size() == d_mat_prototype_id_map[mat_name].size());
+        TBOX_ASSERT(struct_id.size() == d_mat_prototype_id_map[mat_name].size());
         unsigned num_nodes = 0;
-        for (unsigned j = 0; j < struct_ids[i].size(); ++j)
+        for (const auto& id : struct_id)
         {
-            TBOX_ASSERT(struct_ids[i][j] < d_cib_strategy->getNumberOfRigidStructures());
+            TBOX_ASSERT(id < d_cib_strategy->getNumberOfRigidStructures());
 
-            num_nodes += d_cib_strategy->getNumberOfNodes(struct_ids[i][j]);
+            num_nodes += d_cib_strategy->getNumberOfNodes(id);
         }
         TBOX_ASSERT(num_nodes == d_mat_nodes_map[mat_name]);
     }
@@ -354,11 +340,9 @@ DirectMobilitySolver::solveSystem(Vec x, Vec b)
     const int rank = SAMRAI_MPI::getRank();
     static const int data_depth = NDIM;
 
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         Mat& mat = d_petsc_mat_map[mat_name].first;
         const MobilityMatrixInverseType& inv_type = d_mat_inv_type_map[mat_name].first;
         const std::vector<std::vector<unsigned> >& struct_ids = d_mat_actual_id_map[mat_name];
@@ -368,7 +352,7 @@ DirectMobilitySolver::solveSystem(Vec x, Vec b)
 
         for (int k = 0; k < num_structs; ++k)
         {
-            double* rhs = NULL;
+            double* rhs = nullptr;
             if (rank == managing_proc) rhs = new double[mat_size];
             d_cib_strategy->copyVecToArray(b, rhs, struct_ids[k], data_depth, managing_proc);
             if (!d_recompute_mob_mat)
@@ -410,11 +394,9 @@ DirectMobilitySolver::solveBodySystem(Vec x, Vec b)
     const int rank = SAMRAI_MPI::getRank();
     static const int data_depth = s_max_free_dofs;
 
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         Mat& mat = d_petsc_mat_map[mat_name].second;
         const MobilityMatrixInverseType& inv_type = d_mat_inv_type_map[mat_name].second;
         const std::vector<std::vector<unsigned> >& struct_ids = d_mat_actual_id_map[mat_name];
@@ -424,7 +406,7 @@ DirectMobilitySolver::solveBodySystem(Vec x, Vec b)
 
         for (int k = 0; k < num_structs; ++k)
         {
-            double* rhs = NULL;
+            double* rhs = nullptr;
             if (rank == managing_proc) rhs = new double[mat_size];
             d_cib_strategy->copyFreeDOFsVecToArray(b, rhs, struct_ids[k], managing_proc);
             if (!d_recompute_mob_mat)
@@ -462,7 +444,7 @@ DirectMobilitySolver::initializeSolverState(Vec x, Vec /*b*/)
     IBAMR_TIMER_START(t_initialize_solver_state);
 
     int rank = SAMRAI_MPI::getRank();
-    unsigned managed_mats = static_cast<unsigned>(d_mat_map.size());
+    auto managed_mats = static_cast<unsigned>(d_mat_map.size());
 
     static bool recreate_mobility_matrices = true;
     static std::vector<bool> read_files(managed_mats, false);
@@ -472,7 +454,7 @@ DirectMobilitySolver::initializeSolverState(Vec x, Vec /*b*/)
     {
         // Get grid-info
         Vec* vx;
-        VecNestGetSubVecs(x, NULL, &vx);
+        VecNestGetSubVecs(x, nullptr, &vx);
         Pointer<SAMRAIVectorReal<NDIM, double> > vx0;
         IBTK::PETScSAMRAIVectorReal::getSAMRAIVectorRead(vx[0], &vx0);
         Pointer<PatchHierarchy<NDIM> > patch_hierarchy = vx0->getPatchHierarchy();
@@ -492,9 +474,7 @@ DirectMobilitySolver::initializeSolverState(Vec x, Vec /*b*/)
         }
 
         int file_counter = 0;
-        for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-             it != d_petsc_mat_map.end();
-             ++it, ++file_counter)
+        for (auto it = d_petsc_mat_map.begin(); it != d_petsc_mat_map.end(); ++it, ++file_counter)
         {
             const std::string& mat_name = it->first;
             Mat& mobility_mat = d_petsc_mat_map[mat_name].first;
@@ -585,7 +565,7 @@ void
 DirectMobilitySolver::getFromInput(Pointer<Database> input_db)
 {
     Pointer<Database> comp_db;
-    comp_db = input_db->isDatabase("LAPACK_SVD") ? input_db->getDatabase("LAPACK_SVD") : Pointer<Database>(NULL);
+    comp_db = input_db->isDatabase("LAPACK_SVD") ? input_db->getDatabase("LAPACK_SVD") : Pointer<Database>(nullptr);
     if (comp_db)
     {
         d_svd_replace_value = comp_db->getDouble("eigenvalue_replace_value");
@@ -603,17 +583,15 @@ void
 DirectMobilitySolver::factorizeMobilityMatrix()
 {
     int rank = SAMRAI_MPI::getRank();
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         if (rank != d_mat_proc_map[mat_name]) continue;
 
         Mat& mat = d_petsc_mat_map[mat_name].first;
         const MobilityMatrixInverseType& inv_type = d_mat_inv_type_map[mat_name].first;
         const int mat_size = d_mat_nodes_map[mat_name] * NDIM;
-        double* mat_data = NULL;
+        double* mat_data = nullptr;
         MatDenseGetArray(mat, &mat_data);
         factorizeDenseMatrix(mat_data, mat_size, inv_type, d_ipiv_map[mat_name].first, mat_name, "Mobility");
         MatDenseRestoreArray(mat, &mat_data);
@@ -626,11 +604,9 @@ void
 DirectMobilitySolver::constructBodyMobilityMatrix()
 {
     int rank = SAMRAI_MPI::getRank();
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         if (rank != d_mat_proc_map[mat_name]) continue;
 
         const int row_size = d_mat_nodes_map[mat_name] * NDIM;
@@ -643,7 +619,7 @@ DirectMobilitySolver::constructBodyMobilityMatrix()
 
         // Allocate a temporary matrix that holds the Matrix-Matrix product.
         // Here we are multiplying inverse of mobility matrix with geometric matrix.
-        double* product_mat_data = new double[row_size * col_size];
+        auto product_mat_data = new double[row_size * col_size];
         Mat product_mat;
         MatCreateSeqDense(PETSC_COMM_SELF, row_size, col_size, product_mat_data, &product_mat);
         MatCopy(geometric_mat, product_mat, SAME_NONZERO_PATTERN);
@@ -668,18 +644,16 @@ void
 DirectMobilitySolver::factorizeBodyMobilityMatrix()
 {
     int rank = SAMRAI_MPI::getRank();
-    for (std::map<std::string, std::pair<Mat, Mat> >::iterator it = d_petsc_mat_map.begin();
-         it != d_petsc_mat_map.end();
-         ++it)
+    for (const auto& petsc_mat_pair : d_petsc_mat_map)
     {
-        const std::string& mat_name = it->first;
+        const std::string& mat_name = petsc_mat_pair.first;
         if (rank != d_mat_proc_map[mat_name]) continue;
 
         Mat& mat = d_petsc_mat_map[mat_name].second;
         const MobilityMatrixInverseType& inv_type = d_mat_inv_type_map[mat_name].second;
         const int mat_size = d_mat_parts_map[mat_name] * s_max_free_dofs;
 
-        double* mat_data = NULL;
+        double* mat_data = nullptr;
         MatDenseGetArray(mat, &mat_data);
         factorizeDenseMatrix(mat_data, mat_size, inv_type, d_ipiv_map[mat_name].second, mat_name, "Body Mobility");
         MatDenseRestoreArray(mat, &mat_data);
@@ -837,7 +811,7 @@ DirectMobilitySolver::factorizeDenseMatrix(double* mat_data,
                 }
                 else
                 {
-                    mat_data[j * mat_size + i] = z[j * mat_size + i] / sqrt(w[j]);
+                    mat_data[j * mat_size + i] = z[j * mat_size + i] / std::sqrt(w[j]);
                 }
             }
         }
@@ -862,8 +836,8 @@ DirectMobilitySolver::computeSolution(Mat& mat, const MobilityMatrixInverseType&
 {
     // Get pointer to matrix.
     int mat_size;
-    double* mat_data = NULL;
-    MatGetSize(mat, &mat_size, NULL);
+    double* mat_data = nullptr;
+    MatGetSize(mat, &mat_size, nullptr);
     MatDenseGetArray(mat, &mat_data);
 
     int err = 0;

@@ -52,7 +52,6 @@
 #include "SideIndex.h"
 #include "Variable.h"
 #include "VariableContext.h"
-#include "boost/array.hpp"
 #include "ibamr/INSHierarchyIntegrator.h"
 #include "ibamr/SpongeLayerForceFunction.h"
 #include "ibamr/StokesSpecifications.h"
@@ -84,7 +83,7 @@ namespace
 inline double
 smooth_kernel(const double r)
 {
-    return std::abs(r) < 1.0 ? 0.5 * (cos(M_PI * r) + 1.0) : 0.0;
+    return std::abs(r) < 1.0 ? 0.5 * (std::cos(M_PI * r) + 1.0) : 0.0;
 } // smooth_kernel
 }
 
@@ -123,12 +122,6 @@ SpongeLayerForceFunction::SpongeLayerForceFunction(const std::string& object_nam
     }
     return;
 } // SpongeLayerForceFunction
-
-SpongeLayerForceFunction::~SpongeLayerForceFunction()
-{
-    // intentionally blank
-    return;
-} // ~SpongeLayerForceFunction
 
 bool
 SpongeLayerForceFunction::isTimeDependent() const

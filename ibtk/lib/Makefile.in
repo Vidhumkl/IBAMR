@@ -98,7 +98,8 @@ host_triplet = @host@
 @LIBMESH_ENABLED_TRUE@	../include/ibtk/libmesh_utilities.h
 subdir = lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ax_prefix_config_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
+	$(top_srcdir)/m4/ax_prefix_config_h.m4 \
 	$(top_srcdir)/m4/ax_prog_cc_mpi.m4 \
 	$(top_srcdir)/m4/ax_prog_cxx_mpi.m4 $(top_srcdir)/m4/boost.m4 \
 	$(top_srcdir)/m4/check_builtins.m4 \
@@ -176,7 +177,6 @@ am__libIBTK2d_a_SOURCES_DIST =  \
 	../src/boundary/cf_interface/CartCellDoubleLinearCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartCellDoubleQuadraticCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp \
-	../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp \
 	../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartExtrapPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartSideRobinPhysBdryOp.cpp \
@@ -284,7 +284,6 @@ am__libIBTK2d_a_SOURCES_DIST =  \
 	../src/utilities/SideSynchCopyFillPattern.cpp \
 	../src/utilities/StandardTagAndInitStrategySet.cpp \
 	../src/utilities/Streamable.cpp \
-	../src/utilities/StreamableFactory.cpp \
 	../src/utilities/StreamableManager.cpp \
 	../src/utilities/muParserCartGridFunction.cpp \
 	../src/lagrangian/FEDataInterpolation.cpp \
@@ -318,7 +317,6 @@ am__objects_2 = ../src/boundary/libIBTK2d_a-HierarchyGhostCellInterpolation.$(OB
 	../src/boundary/cf_interface/libIBTK2d_a-CartCellDoubleLinearCFInterpolation.$(OBJEXT) \
 	../src/boundary/cf_interface/libIBTK2d_a-CartCellDoubleQuadraticCFInterpolation.$(OBJEXT) \
 	../src/boundary/cf_interface/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.$(OBJEXT) \
-	../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK2d_a-CartCellRobinPhysBdryOp.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK2d_a-CartExtrapPhysBdryOp.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK2d_a-CartSideRobinPhysBdryOp.$(OBJEXT) \
@@ -431,7 +429,6 @@ am__objects_2 = ../src/boundary/libIBTK2d_a-HierarchyGhostCellInterpolation.$(OB
 	../src/utilities/libIBTK2d_a-SideSynchCopyFillPattern.$(OBJEXT) \
 	../src/utilities/libIBTK2d_a-StandardTagAndInitStrategySet.$(OBJEXT) \
 	../src/utilities/libIBTK2d_a-Streamable.$(OBJEXT) \
-	../src/utilities/libIBTK2d_a-StreamableFactory.$(OBJEXT) \
 	../src/utilities/libIBTK2d_a-StreamableManager.$(OBJEXT) \
 	../src/utilities/libIBTK2d_a-muParserCartGridFunction.$(OBJEXT) \
 	$(am__objects_1)
@@ -464,7 +461,6 @@ am__libIBTK3d_a_SOURCES_DIST =  \
 	../src/boundary/cf_interface/CartCellDoubleLinearCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartCellDoubleQuadraticCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp \
-	../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp \
 	../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartExtrapPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartSideRobinPhysBdryOp.cpp \
@@ -572,7 +568,6 @@ am__libIBTK3d_a_SOURCES_DIST =  \
 	../src/utilities/SideSynchCopyFillPattern.cpp \
 	../src/utilities/StandardTagAndInitStrategySet.cpp \
 	../src/utilities/Streamable.cpp \
-	../src/utilities/StreamableFactory.cpp \
 	../src/utilities/StreamableManager.cpp \
 	../src/utilities/muParserCartGridFunction.cpp \
 	../src/lagrangian/FEDataInterpolation.cpp \
@@ -606,7 +601,6 @@ am__objects_4 = ../src/boundary/libIBTK3d_a-HierarchyGhostCellInterpolation.$(OB
 	../src/boundary/cf_interface/libIBTK3d_a-CartCellDoubleLinearCFInterpolation.$(OBJEXT) \
 	../src/boundary/cf_interface/libIBTK3d_a-CartCellDoubleQuadraticCFInterpolation.$(OBJEXT) \
 	../src/boundary/cf_interface/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.$(OBJEXT) \
-	../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK3d_a-CartCellRobinPhysBdryOp.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK3d_a-CartExtrapPhysBdryOp.$(OBJEXT) \
 	../src/boundary/physical_boundary/libIBTK3d_a-CartSideRobinPhysBdryOp.$(OBJEXT) \
@@ -719,7 +713,6 @@ am__objects_4 = ../src/boundary/libIBTK3d_a-HierarchyGhostCellInterpolation.$(OB
 	../src/utilities/libIBTK3d_a-SideSynchCopyFillPattern.$(OBJEXT) \
 	../src/utilities/libIBTK3d_a-StandardTagAndInitStrategySet.$(OBJEXT) \
 	../src/utilities/libIBTK3d_a-Streamable.$(OBJEXT) \
-	../src/utilities/libIBTK3d_a-StreamableFactory.$(OBJEXT) \
 	../src/utilities/libIBTK3d_a-StreamableManager.$(OBJEXT) \
 	../src/utilities/libIBTK3d_a-muParserCartGridFunction.$(OBJEXT) \
 	$(am__objects_3)
@@ -765,11 +758,9 @@ am__depfiles_remade = ../src/boundary/$(DEPDIR)/libIBTK2d_a-HierarchyGhostCellIn
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleLinearCFInterpolation.Po \
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleQuadraticCFInterpolation.Po \
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.Po \
-	../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po \
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleLinearCFInterpolation.Po \
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleQuadraticCFInterpolation.Po \
 	../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.Po \
-	../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po \
 	../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartCellRobinPhysBdryOp.Po \
 	../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartExtrapPhysBdryOp.Po \
 	../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartSideRobinPhysBdryOp.Po \
@@ -972,7 +963,6 @@ am__depfiles_remade = ../src/boundary/$(DEPDIR)/libIBTK2d_a-HierarchyGhostCellIn
 	../src/utilities/$(DEPDIR)/libIBTK2d_a-SideSynchCopyFillPattern.Po \
 	../src/utilities/$(DEPDIR)/libIBTK2d_a-StandardTagAndInitStrategySet.Po \
 	../src/utilities/$(DEPDIR)/libIBTK2d_a-Streamable.Po \
-	../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po \
 	../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Po \
 	../src/utilities/$(DEPDIR)/libIBTK2d_a-muParserCartGridFunction.Po \
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-AppInitializer.Po \
@@ -1003,7 +993,6 @@ am__depfiles_remade = ../src/boundary/$(DEPDIR)/libIBTK2d_a-HierarchyGhostCellIn
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-SideSynchCopyFillPattern.Po \
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-StandardTagAndInitStrategySet.Po \
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-Streamable.Po \
-	../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po \
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Po \
 	../src/utilities/$(DEPDIR)/libIBTK3d_a-muParserCartGridFunction.Po
 am__mv = mv -f
@@ -1138,6 +1127,7 @@ FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLIBS = @FLIBS@
 GREP = @GREP@
+HAVE_CXX11 = @HAVE_CXX11@
 HAVE_DOT = @HAVE_DOT@
 HAVE_DOXYGEN = @HAVE_DOXYGEN@
 HAVE_LIBGSL = @HAVE_LIBGSL@
@@ -1554,7 +1544,6 @@ DIM_INDEPENDENT_SOURCES =  \
 	../src/boundary/cf_interface/CartCellDoubleLinearCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartCellDoubleQuadraticCFInterpolation.cpp \
 	../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp \
-	../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp \
 	../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartExtrapPhysBdryOp.cpp \
 	../src/boundary/physical_boundary/CartSideRobinPhysBdryOp.cpp \
@@ -1662,7 +1651,6 @@ DIM_INDEPENDENT_SOURCES =  \
 	../src/utilities/SideSynchCopyFillPattern.cpp \
 	../src/utilities/StandardTagAndInitStrategySet.cpp \
 	../src/utilities/Streamable.cpp \
-	../src/utilities/StreamableFactory.cpp \
 	../src/utilities/StreamableManager.cpp \
 	../src/utilities/muParserCartGridFunction.cpp $(am__append_3)
 libIBTK2d_a_CXXFLAGS = $(AM_CXXFLAGS) -DNDIM=2
@@ -1823,9 +1811,6 @@ libIBTK.a: $(libIBTK_a_OBJECTS) $(libIBTK_a_DEPENDENCIES) $(EXTRA_libIBTK_a_DEPE
 	../src/boundary/cf_interface/$(am__dirstamp) \
 	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
 ../src/boundary/cf_interface/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.$(OBJEXT):  \
-	../src/boundary/cf_interface/$(am__dirstamp) \
-	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
-../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.$(OBJEXT):  \
 	../src/boundary/cf_interface/$(am__dirstamp) \
 	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
 ../src/boundary/physical_boundary/$(am__dirstamp):
@@ -2212,9 +2197,6 @@ libIBTK.a: $(libIBTK_a_OBJECTS) $(libIBTK_a_DEPENDENCIES) $(EXTRA_libIBTK_a_DEPE
 ../src/utilities/libIBTK2d_a-Streamable.$(OBJEXT):  \
 	../src/utilities/$(am__dirstamp) \
 	../src/utilities/$(DEPDIR)/$(am__dirstamp)
-../src/utilities/libIBTK2d_a-StreamableFactory.$(OBJEXT):  \
-	../src/utilities/$(am__dirstamp) \
-	../src/utilities/$(DEPDIR)/$(am__dirstamp)
 ../src/utilities/libIBTK2d_a-StreamableManager.$(OBJEXT):  \
 	../src/utilities/$(am__dirstamp) \
 	../src/utilities/$(DEPDIR)/$(am__dirstamp)
@@ -2335,9 +2317,6 @@ libIBTK2d.a: $(libIBTK2d_a_OBJECTS) $(libIBTK2d_a_DEPENDENCIES) $(EXTRA_libIBTK2
 	../src/boundary/cf_interface/$(am__dirstamp) \
 	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
 ../src/boundary/cf_interface/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.$(OBJEXT):  \
-	../src/boundary/cf_interface/$(am__dirstamp) \
-	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
-../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.$(OBJEXT):  \
 	../src/boundary/cf_interface/$(am__dirstamp) \
 	../src/boundary/cf_interface/$(DEPDIR)/$(am__dirstamp)
 ../src/boundary/physical_boundary/libIBTK3d_a-CartCellRobinPhysBdryOp.$(OBJEXT):  \
@@ -2676,9 +2655,6 @@ libIBTK2d.a: $(libIBTK2d_a_OBJECTS) $(libIBTK2d_a_DEPENDENCIES) $(EXTRA_libIBTK2
 ../src/utilities/libIBTK3d_a-Streamable.$(OBJEXT):  \
 	../src/utilities/$(am__dirstamp) \
 	../src/utilities/$(DEPDIR)/$(am__dirstamp)
-../src/utilities/libIBTK3d_a-StreamableFactory.$(OBJEXT):  \
-	../src/utilities/$(am__dirstamp) \
-	../src/utilities/$(DEPDIR)/$(am__dirstamp)
 ../src/utilities/libIBTK3d_a-StreamableManager.$(OBJEXT):  \
 	../src/utilities/$(am__dirstamp) \
 	../src/utilities/$(DEPDIR)/$(am__dirstamp)
@@ -2783,11 +2759,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleLinearCFInterpolation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleQuadraticCFInterpolation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleLinearCFInterpolation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleQuadraticCFInterpolation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartCellRobinPhysBdryOp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartExtrapPhysBdryOp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartSideRobinPhysBdryOp.Po@am__quote@ # am--include-marker
@@ -2990,7 +2964,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-SideSynchCopyFillPattern.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-StandardTagAndInitStrategySet.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-Streamable.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK2d_a-muParserCartGridFunction.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-AppInitializer.Po@am__quote@ # am--include-marker
@@ -3021,7 +2994,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-SideSynchCopyFillPattern.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-StandardTagAndInitStrategySet.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-Streamable.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../src/utilities/$(DEPDIR)/libIBTK3d_a-muParserCartGridFunction.Po@am__quote@ # am--include-marker
 
@@ -3110,20 +3082,6 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp' object='../src/boundary/cf_interface/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.obj `if test -f '../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; fi`
-
-../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.o: ../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.o -MD -MP -MF ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo -c -o ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.o `test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' || echo '$(srcdir)/'`../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' object='../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.o `test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' || echo '$(srcdir)/'`../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-
-../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.obj: ../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.obj -MD -MP -MF ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo -c -o ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.obj `if test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' object='../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.obj `if test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; fi`
 
 ../src/boundary/physical_boundary/libIBTK2d_a-CartCellRobinPhysBdryOp.o: ../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/physical_boundary/libIBTK2d_a-CartCellRobinPhysBdryOp.o -MD -MP -MF ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartCellRobinPhysBdryOp.Tpo -c -o ../src/boundary/physical_boundary/libIBTK2d_a-CartCellRobinPhysBdryOp.o `test -f '../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp' || echo '$(srcdir)/'`../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp
@@ -4693,20 +4651,6 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK2d_a-Streamable.obj `if test -f '../src/utilities/Streamable.cpp'; then $(CYGPATH_W) '../src/utilities/Streamable.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/Streamable.cpp'; fi`
 
-../src/utilities/libIBTK2d_a-StreamableFactory.o: ../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK2d_a-StreamableFactory.o -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Tpo -c -o ../src/utilities/libIBTK2d_a-StreamableFactory.o `test -f '../src/utilities/StreamableFactory.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Tpo ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/utilities/StreamableFactory.cpp' object='../src/utilities/libIBTK2d_a-StreamableFactory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK2d_a-StreamableFactory.o `test -f '../src/utilities/StreamableFactory.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableFactory.cpp
-
-../src/utilities/libIBTK2d_a-StreamableFactory.obj: ../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK2d_a-StreamableFactory.obj -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Tpo -c -o ../src/utilities/libIBTK2d_a-StreamableFactory.obj `if test -f '../src/utilities/StreamableFactory.cpp'; then $(CYGPATH_W) '../src/utilities/StreamableFactory.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/StreamableFactory.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Tpo ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/utilities/StreamableFactory.cpp' object='../src/utilities/libIBTK2d_a-StreamableFactory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK2d_a-StreamableFactory.obj `if test -f '../src/utilities/StreamableFactory.cpp'; then $(CYGPATH_W) '../src/utilities/StreamableFactory.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/StreamableFactory.cpp'; fi`
-
 ../src/utilities/libIBTK2d_a-StreamableManager.o: ../src/utilities/StreamableManager.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK2d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK2d_a-StreamableManager.o -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Tpo -c -o ../src/utilities/libIBTK2d_a-StreamableManager.o `test -f '../src/utilities/StreamableManager.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableManager.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Tpo ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Po
@@ -4818,20 +4762,6 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp' object='../src/boundary/cf_interface/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.obj `if test -f '../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CartSideDoubleQuadraticCFInterpolation.cpp'; fi`
-
-../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.o: ../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.o -MD -MP -MF ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo -c -o ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.o `test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' || echo '$(srcdir)/'`../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' object='../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.o `test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' || echo '$(srcdir)/'`../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-
-../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.obj: ../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.obj -MD -MP -MF ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo -c -o ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.obj `if test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Tpo ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp' object='../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/boundary/cf_interface/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.obj `if test -f '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; then $(CYGPATH_W) '../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/boundary/cf_interface/CoarseFineBoundaryRefinePatchStrategy.cpp'; fi`
 
 ../src/boundary/physical_boundary/libIBTK3d_a-CartCellRobinPhysBdryOp.o: ../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/boundary/physical_boundary/libIBTK3d_a-CartCellRobinPhysBdryOp.o -MD -MP -MF ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK3d_a-CartCellRobinPhysBdryOp.Tpo -c -o ../src/boundary/physical_boundary/libIBTK3d_a-CartCellRobinPhysBdryOp.o `test -f '../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp' || echo '$(srcdir)/'`../src/boundary/physical_boundary/CartCellRobinPhysBdryOp.cpp
@@ -6401,20 +6331,6 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK3d_a-Streamable.obj `if test -f '../src/utilities/Streamable.cpp'; then $(CYGPATH_W) '../src/utilities/Streamable.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/Streamable.cpp'; fi`
 
-../src/utilities/libIBTK3d_a-StreamableFactory.o: ../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK3d_a-StreamableFactory.o -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Tpo -c -o ../src/utilities/libIBTK3d_a-StreamableFactory.o `test -f '../src/utilities/StreamableFactory.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Tpo ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/utilities/StreamableFactory.cpp' object='../src/utilities/libIBTK3d_a-StreamableFactory.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK3d_a-StreamableFactory.o `test -f '../src/utilities/StreamableFactory.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableFactory.cpp
-
-../src/utilities/libIBTK3d_a-StreamableFactory.obj: ../src/utilities/StreamableFactory.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK3d_a-StreamableFactory.obj -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Tpo -c -o ../src/utilities/libIBTK3d_a-StreamableFactory.obj `if test -f '../src/utilities/StreamableFactory.cpp'; then $(CYGPATH_W) '../src/utilities/StreamableFactory.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/StreamableFactory.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Tpo ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/utilities/StreamableFactory.cpp' object='../src/utilities/libIBTK3d_a-StreamableFactory.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -c -o ../src/utilities/libIBTK3d_a-StreamableFactory.obj `if test -f '../src/utilities/StreamableFactory.cpp'; then $(CYGPATH_W) '../src/utilities/StreamableFactory.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/utilities/StreamableFactory.cpp'; fi`
-
 ../src/utilities/libIBTK3d_a-StreamableManager.o: ../src/utilities/StreamableManager.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libIBTK3d_a_CXXFLAGS) $(CXXFLAGS) -MT ../src/utilities/libIBTK3d_a-StreamableManager.o -MD -MP -MF ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Tpo -c -o ../src/utilities/libIBTK3d_a-StreamableManager.o `test -f '../src/utilities/StreamableManager.cpp' || echo '$(srcdir)/'`../src/utilities/StreamableManager.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Tpo ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Po
@@ -6677,11 +6593,9 @@ distclean: distclean-am
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleLinearCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleQuadraticCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.Po
-	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleLinearCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleQuadraticCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.Po
-	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartCellRobinPhysBdryOp.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartExtrapPhysBdryOp.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartSideRobinPhysBdryOp.Po
@@ -6884,7 +6798,6 @@ distclean: distclean-am
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-SideSynchCopyFillPattern.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StandardTagAndInitStrategySet.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-Streamable.Po
-	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-muParserCartGridFunction.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-AppInitializer.Po
@@ -6915,7 +6828,6 @@ distclean: distclean-am
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-SideSynchCopyFillPattern.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StandardTagAndInitStrategySet.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-Streamable.Po
-	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-muParserCartGridFunction.Po
 	-rm -f Makefile
@@ -6968,11 +6880,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleLinearCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartCellDoubleQuadraticCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CartSideDoubleQuadraticCFInterpolation.Po
-	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK2d_a-CoarseFineBoundaryRefinePatchStrategy.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleLinearCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartCellDoubleQuadraticCFInterpolation.Po
 	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CartSideDoubleQuadraticCFInterpolation.Po
-	-rm -f ../src/boundary/cf_interface/$(DEPDIR)/libIBTK3d_a-CoarseFineBoundaryRefinePatchStrategy.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartCellRobinPhysBdryOp.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartExtrapPhysBdryOp.Po
 	-rm -f ../src/boundary/physical_boundary/$(DEPDIR)/libIBTK2d_a-CartSideRobinPhysBdryOp.Po
@@ -7175,7 +7085,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-SideSynchCopyFillPattern.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StandardTagAndInitStrategySet.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-Streamable.Po
-	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableFactory.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-StreamableManager.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK2d_a-muParserCartGridFunction.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-AppInitializer.Po
@@ -7206,7 +7115,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-SideSynchCopyFillPattern.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StandardTagAndInitStrategySet.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-Streamable.Po
-	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableFactory.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-StreamableManager.Po
 	-rm -f ../src/utilities/$(DEPDIR)/libIBTK3d_a-muParserCartGridFunction.Po
 	-rm -f Makefile

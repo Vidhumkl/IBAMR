@@ -103,39 +103,19 @@ set_rotation_matrix(const Eigen::Vector3d& rot_vel,
 } // namespace
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
-IBFEDirectForcingKinematics::IBFEDirectForcingKinematics(const std::string& object_name,
+IBFEDirectForcingKinematics::IBFEDirectForcingKinematics(std::string object_name,
                                                          Pointer<Database> input_db,
                                                          Pointer<IBFEMethod> ibfe_method_ops,
                                                          int part,
                                                          bool register_for_restart)
+    : d_ibfe_method_ops(ibfe_method_ops), d_part(part), d_object_name(std::move(object_name))
 {
-    // Set the object name and register it with the restart manager.
-    d_object_name = object_name;
-    d_ibfe_method_ops = ibfe_method_ops;
-    d_part = part;
-
     d_registered_for_restart = false;
     if (register_for_restart)
     {
         RestartManager::getManager()->registerRestartItem(d_object_name, this);
         d_registered_for_restart = true;
     }
-
-    // Set some default values.
-    d_quaternion_current = Eigen::Quaterniond::Identity();
-    d_quaternion_half = Eigen::Quaterniond::Identity();
-    d_quaternion_new = Eigen::Quaterniond::Identity();
-    d_trans_vel_current = Eigen::Vector3d::Zero();
-    d_trans_vel_half = Eigen::Vector3d::Zero();
-    d_trans_vel_new = Eigen::Vector3d::Zero();
-    d_rot_vel_current = Eigen::Vector3d::Zero();
-    d_rot_vel_half = Eigen::Vector3d::Zero();
-    d_rot_vel_new = Eigen::Vector3d::Zero();
-    d_center_of_mass_initial = Eigen::Vector3d::Zero();
-    d_center_of_mass_current = Eigen::Vector3d::Zero();
-    d_center_of_mass_half = Eigen::Vector3d::Zero();
-    d_center_of_mass_new = Eigen::Vector3d::Zero();
-    d_inertia_tensor_initial = Eigen::Matrix3d::Zero();
 
     // Initialize object with data read from the input and restart databases.
     bool from_restart = RestartManager::getManager()->isFromRestart();
@@ -572,7 +552,7 @@ IBFEDirectForcingKinematics::computeCOMOfStructure(Eigen::Vector3d& X0)
     const std::vector<std::vector<double> >& phi = fe->get_phi();
 
     // Extract the nodal coordinates.
-    PetscVector<double>& X_petsc = dynamic_cast<PetscVector<double>&>(*X_system.current_local_solution.get());
+    auto& X_petsc = dynamic_cast<PetscVector<double>&>(*X_system.current_local_solution.get());
     X_petsc.close();
     Vec X_global_vec = X_petsc.vec();
     Vec X_local_ghost_vec;
@@ -641,7 +621,7 @@ IBFEDirectForcingKinematics::computeMOIOfStructure(Eigen::Matrix3d& I, const Eig
 
     // Extract the nodal coordinates.
     int ierr;
-    PetscVector<double>& X_petsc = dynamic_cast<PetscVector<double>&>(*X_system.current_local_solution.get());
+    auto& X_petsc = dynamic_cast<PetscVector<double>&>(*X_system.current_local_solution.get());
     X_petsc.close();
     Vec X_global_vec = X_petsc.vec();
     Vec X_local_ghost_vec;
@@ -724,7 +704,7 @@ IBFEDirectForcingKinematics::computeImposedLagrangianForceDensity(PetscVector<do
     for (unsigned int d = 0; d < NDIM; ++d)
     {
         nodal_indices[d].reserve(total_local_nodes);
-        nodal_X_values[d].reserve(total_local_nodes);
+        nodal_X_values[d].resize(total_local_nodes);
     }
 
     for (MeshBase::node_iterator it = mesh.local_nodes_begin(); it != mesh.local_nodes_end(); ++it)

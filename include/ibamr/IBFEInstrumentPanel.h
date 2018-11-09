@@ -36,6 +36,7 @@
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
 #include <fstream>
+#include <memory>
 
 #include "boost/multi_array.hpp"
 #include "ibamr/IBFEMethod.h"
@@ -44,7 +45,6 @@
 #include "libmesh/enum_order.h"
 #include "libmesh/enum_quadrature_type.h"
 #include "libmesh/equation_systems.h"
-#include "libmesh/exodusII_io.h"
 #include "libmesh/mesh.h"
 #include "libmesh/point.h"
 #include "libmesh/serial_mesh.h"
@@ -66,11 +66,6 @@ public:
      * \brief Constructor.
      */
     IBFEInstrumentPanel(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> input_db, int part);
-
-    /*!
-     * \brief Destructor.
-     */
-    ~IBFEInstrumentPanel();
 
     /*!
      * \brief Get data from input file.
@@ -100,14 +95,44 @@ public:
                             double data_time);
 
     /*!
-     * \brief output exodus files and .dat file for meshes and nodes.
-     */
-    void outputMeterMeshes(IBAMR::IBFEMethod* ib_method_ops, int timestep_num, double data_time);
-
-    /*!
-     * \return return the instrument dump interval.
+     * \return The instrument dump interval
      */
     int getInstrumentDumpInterval() const;
+
+    /*!
+     * \return The name of the directory for output
+     */
+    std::string getPlotDirectoryName() const;
+
+    /*!
+     * \return The number of meter meshes
+     */
+    int getNumberOfMeterMeshes() const;
+
+    /*!
+     * \return A reference to the jjth meter mesh
+     */
+    libMesh::MeshBase& getMeterMesh(const unsigned int jj) const;
+
+    /*!
+     * \return A reference to the EquationSystems object for jjth meter mesh
+     */
+    libMesh::EquationSystems& getMeterMeshEquationSystems(const unsigned int jj) const;
+
+    /*!
+     * \return The name for jjth meter mesh
+     */
+    const std::string& getMeterMeshName(const unsigned int jj) const;
+
+    /*!
+     * \return An ordered vector of nodes for the jjth meter mesh
+     */
+    const std::vector<libMesh::Point>& getMeterMeshNodes(const unsigned int jj) const;
+
+    /*!
+     * \return The quadrature order for the jjth meter mesh
+     */
+    libMesh::Order getMeterMeshQuadOrder(const unsigned int jj) const;
 
 private:
     /*!
@@ -121,11 +146,6 @@ private:
      * \brief write out data to file.
      */
     void outputData(double data_time);
-
-    /*!
-     * \brief write out meshes and equation systems in Exodus file.
-     */
-    void outputExodus(IBAMR::IBFEMethod* ib_method_ops, int timestep, double loop_time);
 
     /*!
      * \brief write out nodes.
@@ -145,7 +165,7 @@ private:
     /*!
      * \brief number of mesh meters.
      */
-    unsigned int d_num_meters;
+    unsigned int d_num_meters = 0;
 
     /*!
      * \brief quadrature order used for the meter meshes.
@@ -177,7 +197,7 @@ private:
     /*!
      * \brief true if meter meshes and other data are built and initialized.
      */
-    bool d_initialized;
+    bool d_initialized = false;
 
     /*!
      * \brief number of nodes in the perimeter of the meter mesh.
@@ -207,19 +227,14 @@ private:
     std::vector<std::vector<libMesh::dof_id_type> > d_node_dof_IDs;
 
     /*!
-     * \brief contains pointers to the equation systems for the meter mesh.
+     * \brief Equation systems for the meter meshes.
      */
-    std::vector<libMesh::EquationSystems*> d_meter_systems;
+    std::vector<std::unique_ptr<libMesh::EquationSystems> > d_meter_systems;
 
     /*!
-     * \brief vector of exodus io objects for data output.
+     * \brief vector of meter meshes.
      */
-    std::vector<libMesh::ExodusII_IO*> d_exodus_io;
-
-    /*!
-     * \brief vector of meter mesh pointers.
-     */
-    std::vector<libMesh::SerialMesh*> d_meter_meshes;
+    std::vector<std::unique_ptr<libMesh::SerialMesh> > d_meter_meshes;
 
     /*!
      * \brief names for each meter mesh.
@@ -273,7 +288,7 @@ private:
     /*!
      * \brief a multimap which associates SAMRAI indices with quadrature point structures.
      */
-    typedef std::multimap<SAMRAI::hier::Index<NDIM>, QuadPointStruct, IndexFortranOrder> QuadPointMap;
+    using QuadPointMap = std::multimap<SAMRAI::hier::Index<NDIM>, QuadPointStruct, IndexFortranOrder>;
     std::vector<QuadPointMap> d_quad_point_map;
 };
 } // namespace IBAMR
