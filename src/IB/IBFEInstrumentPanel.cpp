@@ -66,6 +66,7 @@
 #include "ibamr/namespaces.h" // IWYU pragma: keep
 #include "ibtk/FEDataManager.h"
 #include "ibtk/IBTK_CHKERRQ.h"
+#include "ibtk/IBTK_MPI.h"
 #include "ibtk/IndexUtilities.h"
 #include "ibtk/LData.h"
 #include "ibtk/LDataManager.h"
@@ -305,7 +306,7 @@ IBFEInstrumentPanel::IBFEInstrumentPanel(SAMRAI::tbox::Pointer<SAMRAI::tbox::Dat
     Utilities::recursiveMkdir(d_plot_directory_name);
 
     // set up file streams
-    if (SAMRAI_MPI::getRank() == 0)
+    if (IBTK_MPI::getRank() == 0)
     {
         std::ostringstream press_output;
         std::ostringstream flux_output;
@@ -803,7 +804,7 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
 
     // check to make sure we don't double count quadrature points because
     // of overlapping patches or something else.
-    const int count_qp_3 = SAMRAI_MPI::sumReduction(count_qp_2);
+    const int count_qp_3 = IBTK_MPI::sumReduction(count_qp_2);
     if (count_qp_1 != count_qp_3)
     {
         TBOX_WARNING("IBFEInstrumentPanel::readInstrumentData :"
@@ -814,9 +815,9 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
     }
 
     // Synchronize the values across all processes.
-    SAMRAI_MPI::sumReduction(&d_flow_values[0], d_num_meters);
-    SAMRAI_MPI::sumReduction(&d_mean_pressure_values[0], d_num_meters);
-    SAMRAI_MPI::sumReduction(&A[0], d_num_meters);
+    IBTK_MPI::sumReduction(&d_flow_values[0], d_num_meters);
+    IBTK_MPI::sumReduction(&d_mean_pressure_values[0], d_num_meters);
+    IBTK_MPI::sumReduction(&A[0], d_num_meters);
 
     // Normalize the mean pressure.
     for (unsigned int jj = 0; jj < d_num_meters; ++jj)
@@ -888,7 +889,7 @@ IBFEInstrumentPanel::readInstrumentData(const int U_data_idx,
             }
         }
 
-        const double total_correction = SAMRAI_MPI::sumReduction(flux_correction);
+        const double total_correction = IBTK_MPI::sumReduction(flux_correction);
         d_flow_values[jj] -= total_correction;
 
     } // loop over meters
@@ -1099,7 +1100,7 @@ IBFEInstrumentPanel::getMeterRadius(const int meter_mesh_number)
 void
 IBFEInstrumentPanel::outputData(const double data_time)
 {
-    if (SAMRAI_MPI::getRank() == 0)
+    if (IBTK_MPI::getRank() == 0)
     {
         d_mean_pressure_stream << data_time;
         d_flux_stream << data_time;
