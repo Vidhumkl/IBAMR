@@ -38,7 +38,6 @@
 #include "IBEELKinematics.h"
 #include "PatchLevel.h"
 #include "CartesianPatchGeometry.h"
-#include "tbox/SAMRAI_MPI.h"
 #include "tbox/MathUtilities.h"
 #include "ibamr/namespaces.h"
 #include "muParser.h"

@@ -37,7 +37,6 @@
 #include "ibamr/namespaces.h"
 #include "ibtk/IBTK_MPI.h"
 #include "tbox/MathUtilities.h"
-#include "tbox/SAMRAI_MPI.h"
 #include "tbox/Utilities.h"
 
 /////////////////////////////// NAMESPACE ////////////////////////////////////
