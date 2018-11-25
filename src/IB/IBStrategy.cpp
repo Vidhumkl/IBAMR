@@ -32,7 +32,6 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
-#include <stddef.h>
 #include <algorithm>
 #include <ostream>
 #include <string>
@@ -90,18 +89,6 @@ namespace IBAMR
 /////////////////////////////// STATIC ///////////////////////////////////////
 
 /////////////////////////////// PUBLIC ///////////////////////////////////////
-
-IBStrategy::IBStrategy() : d_ib_solver(NULL), d_use_fixed_coupling_ops(false)
-{
-    // intentionally blank
-    return;
-} // IBStrategy
-
-IBStrategy::~IBStrategy()
-{
-    // intentionally blank
-    return;
-} // ~IBStrategy
 
 void
 IBStrategy::registerIBHierarchyIntegrator(IBHierarchyIntegrator* ib_solver)

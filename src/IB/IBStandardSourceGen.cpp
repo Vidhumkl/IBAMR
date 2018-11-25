@@ -75,19 +75,12 @@ std::vector<std::vector<double> > IBStandardSourceGen::s_source_radii;
 /////////////////////////////// PUBLIC ///////////////////////////////////////
 
 IBStandardSourceGen::IBStandardSourceGen()
-    : d_n_src(), d_source_names(), d_r_src(), d_num_perimeter_nodes(), d_Q_src(), d_P_src()
 {
     RestartManager::getManager()->registerRestartItem("IBStandardSourceGen", this);
     const bool from_restart = RestartManager::getManager()->isFromRestart();
     if (from_restart) getFromRestart();
     return;
 } // IBStandardSourceGen
-
-IBStandardSourceGen::~IBStandardSourceGen()
-{
-    // intentionally blank
-    return;
-} // ~IBStandardSourceGen
 
 void
 IBStandardSourceGen::setNumSources(const int ln, const unsigned int num_sources)
@@ -178,9 +171,8 @@ IBStandardSourceGen::initializeLevelData(const Pointer<PatchHierarchy<NDIM> > /*
     std::fill(d_num_perimeter_nodes[level_number].begin(), d_num_perimeter_nodes[level_number].end(), 0);
     const Pointer<LMesh> mesh = l_data_manager->getLMesh(level_number);
     const std::vector<LNode*>& local_nodes = mesh->getLocalNodes();
-    for (std::vector<LNode*>::const_iterator cit = local_nodes.begin(); cit != local_nodes.end(); ++cit)
+    for (const auto& node_idx : local_nodes)
     {
-        const LNode* const node_idx = *cit;
         const IBSourceSpec* const spec = node_idx->getNodeDataItem<IBSourceSpec>();
         if (!spec) continue;
         const int source_idx = spec->getSourceIndex();
@@ -227,9 +219,8 @@ IBStandardSourceGen::getSourceLocations(std::vector<Point>& X_src,
     const double* const X_node = X_data->getLocalFormVecArray()->data();
     const Pointer<LMesh> mesh = l_data_manager->getLMesh(level_number);
     const std::vector<LNode*>& local_nodes = mesh->getLocalNodes();
-    for (std::vector<LNode*>::const_iterator cit = local_nodes.begin(); cit != local_nodes.end(); ++cit)
+    for (const auto& node_idx : local_nodes)
     {
-        const LNode* const node_idx = *cit;
         const IBSourceSpec* const spec = node_idx->getNodeDataItem<IBSourceSpec>();
         if (!spec) continue;
         const int& petsc_idx = node_idx->getLocalPETScIndex();

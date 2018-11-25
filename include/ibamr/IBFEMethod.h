@@ -35,9 +35,8 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
+#include <array>
 #include <set>
-#include <stdbool.h>
-#include <stddef.h>
 #include <string>
 #include <vector>
 
@@ -120,7 +119,7 @@ public:
      */
     IBFEMethod(const std::string& object_name,
                SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> input_db,
-               libMesh::Mesh* mesh,
+               libMesh::MeshBase* mesh,
                int max_level_number,
                bool register_for_restart = true,
                const std::string& restart_read_dirname = "",
@@ -131,7 +130,7 @@ public:
      */
     IBFEMethod(const std::string& object_name,
                SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> input_db,
-               const std::vector<libMesh::Mesh*>& meshes,
+               const std::vector<libMesh::MeshBase*>& meshes,
                int max_level_number,
                bool register_for_restart = true,
                const std::string& restart_read_dirname = "",
@@ -156,14 +155,14 @@ public:
     /*!
      * Typedef specifying interface for coordinate mapping function.
      */
-    typedef void (*CoordinateMappingFcnPtr)(libMesh::Point& x, const libMesh::Point& X, void* ctx);
+    using CoordinateMappingFcnPtr = void (*)(libMesh::Point& x, const libMesh::Point& X, void* ctx);
 
     /*!
      * Struct encapsulating coordinate mapping function data.
      */
     struct CoordinateMappingFcnData
     {
-        CoordinateMappingFcnData(CoordinateMappingFcnPtr fcn = NULL, void* ctx = NULL) : fcn(fcn), ctx(ctx)
+        CoordinateMappingFcnData(CoordinateMappingFcnPtr fcn = nullptr, void* ctx = nullptr) : fcn(fcn), ctx(ctx)
         {
         }
 
@@ -189,14 +188,14 @@ public:
     /*!
      * Typedef specifying interface for initial velocity specification function.
      */
-    typedef void (*InitialVelocityFcnPtr)(libMesh::VectorValue<double>& U0, const libMesh::Point& X0, void* ctx);
+    using InitialVelocityFcnPtr = void (*)(libMesh::VectorValue<double>& U0, const libMesh::Point& X0, void* ctx);
 
     /*!
      * Struct encapsulating initial velocity specification function data.
      */
     struct InitialVelocityFcnData
     {
-        InitialVelocityFcnData(InitialVelocityFcnPtr fcn = NULL, void* ctx = NULL) : fcn(fcn), ctx(ctx)
+        InitialVelocityFcnData(InitialVelocityFcnPtr fcn = nullptr, void* ctx = nullptr) : fcn(fcn), ctx(ctx)
         {
         }
 
@@ -221,16 +220,16 @@ public:
     /*!
      * Typedef specifying interface for PK1 stress tensor function.
      */
-    typedef IBTK::TensorMeshFcnPtr PK1StressFcnPtr;
+    using PK1StressFcnPtr = IBTK::TensorMeshFcnPtr;
 
     /*!
      * Struct encapsulating PK1 stress tensor function data.
      */
     struct PK1StressFcnData
     {
-        PK1StressFcnData(PK1StressFcnPtr fcn = NULL,
+        PK1StressFcnData(PK1StressFcnPtr fcn = nullptr,
                          const std::vector<IBTK::SystemData>& system_data = std::vector<IBTK::SystemData>(),
-                         void* const ctx = NULL,
+                         void* const ctx = nullptr,
                          const libMesh::QuadratureType& quad_type = libMesh::INVALID_Q_RULE,
                          const libMesh::Order& quad_order = libMesh::INVALID_ORDER)
             : fcn(fcn), system_data(system_data), ctx(ctx), quad_type(quad_type), quad_order(quad_order)
@@ -264,16 +263,16 @@ public:
      * Typedef specifying interface for Lagrangian body force distribution
      * function.
      */
-    typedef IBTK::VectorMeshFcnPtr LagBodyForceFcnPtr;
+    using LagBodyForceFcnPtr = IBTK::VectorMeshFcnPtr;
 
     /*!
      * Struct encapsulating Lagrangian body force distribution data.
      */
     struct LagBodyForceFcnData
     {
-        LagBodyForceFcnData(LagBodyForceFcnPtr fcn = NULL,
+        LagBodyForceFcnData(LagBodyForceFcnPtr fcn = nullptr,
                             const std::vector<IBTK::SystemData>& system_data = std::vector<IBTK::SystemData>(),
-                            void* const ctx = NULL)
+                            void* const ctx = nullptr)
             : fcn(fcn), system_data(system_data), ctx(ctx)
         {
         }
@@ -301,16 +300,16 @@ public:
      * Typedef specifying interface for Lagrangian pressure force distribution
      * function.
      */
-    typedef IBTK::ScalarSurfaceFcnPtr LagSurfacePressureFcnPtr;
+    using LagSurfacePressureFcnPtr = IBTK::ScalarSurfaceFcnPtr;
 
     /*!
      * Struct encapsulating Lagrangian surface pressure distribution data.
      */
     struct LagSurfacePressureFcnData
     {
-        LagSurfacePressureFcnData(LagSurfacePressureFcnPtr fcn = NULL,
+        LagSurfacePressureFcnData(LagSurfacePressureFcnPtr fcn = nullptr,
                                   const std::vector<IBTK::SystemData>& system_data = std::vector<IBTK::SystemData>(),
-                                  void* const ctx = NULL)
+                                  void* const ctx = nullptr)
             : fcn(fcn), system_data(system_data), ctx(ctx)
         {
         }
@@ -338,16 +337,16 @@ public:
      * Typedef specifying interface for Lagrangian surface force distribution
      * function.
      */
-    typedef IBTK::VectorSurfaceFcnPtr LagSurfaceForceFcnPtr;
+    using LagSurfaceForceFcnPtr = IBTK::VectorSurfaceFcnPtr;
 
     /*!
      * Struct encapsulating Lagrangian surface force distribution data.
      */
     struct LagSurfaceForceFcnData
     {
-        LagSurfaceForceFcnData(LagSurfaceForceFcnPtr fcn = NULL,
+        LagSurfaceForceFcnData(LagSurfaceForceFcnPtr fcn = nullptr,
                                const std::vector<IBTK::SystemData>& system_data = std::vector<IBTK::SystemData>(),
-                               void* const ctx = NULL)
+                               void* const ctx = nullptr)
             : fcn(fcn), system_data(system_data), ctx(ctx)
         {
         }
@@ -375,16 +374,16 @@ public:
      * Typedef specifying interface for Lagrangian mass source/sink distribution
      * function.
      */
-    typedef IBTK::ScalarMeshFcnPtr LagBodySourceFcnPtr;
+    using LagBodySourceFcnPtr = IBTK::ScalarMeshFcnPtr;
 
     /*!
      * Struct encapsulating Lagrangian mass source/sink distribution data.
      */
     struct LagBodySourceFcnData
     {
-        LagBodySourceFcnData(LagBodySourceFcnPtr fcn = NULL,
+        LagBodySourceFcnData(LagBodySourceFcnPtr fcn = nullptr,
                              const std::vector<IBTK::SystemData>& system_data = std::vector<IBTK::SystemData>(),
-                             void* const ctx = NULL)
+                             void* const ctx = nullptr)
             : fcn(fcn), system_data(system_data), ctx(ctx)
         {
         }
@@ -411,9 +410,9 @@ public:
     void constrainPartOverlap(unsigned int part1,
                               unsigned int part2,
                               double kappa,
-                              libMesh::QBase* qrule1 = NULL,
-                              libMesh::QBase* qrule2 = NULL);
-    
+                              libMesh::QBase* qrule1 = nullptr,
+                              libMesh::QBase* qrule2 = nullptr);
+
     /*!
      * Always reset the velocity of the nodes of part1 that overlap part2 to
      * equal the velocity of part2.
@@ -426,8 +425,8 @@ public:
     void registerOverlappingForceConstraint(unsigned int part1,
                                             unsigned int part2,
                                             double kappa,
-                                            libMesh::QBase* qrule1 = NULL,
-                                            libMesh::QBase* qrule2 = NULL);
+                                            libMesh::QBase* qrule1 = nullptr,
+                                            libMesh::QBase* qrule2 = nullptr);
 
     /*!
      * Register the (optional) direct forcing kinematics object with the finite
@@ -440,23 +439,23 @@ public:
      * Return the number of ghost cells required by the Lagrangian-Eulerian
      * interaction routines.
      */
-    const SAMRAI::hier::IntVector<NDIM>& getMinimumGhostCellWidth() const;
+    const SAMRAI::hier::IntVector<NDIM>& getMinimumGhostCellWidth() const override;
 
     /*!
      * Setup the tag buffer.
      */
     void setupTagBuffer(SAMRAI::tbox::Array<int>& tag_buffer,
-                        SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) const;
+                        SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) const override;
 
     /*!
      * Method to prepare to advance data from current_time to new_time.
      */
-    void preprocessIntegrateData(double current_time, double new_time, int num_cycles);
+    void preprocessIntegrateData(double current_time, double new_time, int num_cycles) override;
 
     /*!
      * Method to clean up data following call(s) to integrateHierarchy().
      */
-    void postprocessIntegrateData(double current_time, double new_time, int num_cycles);
+    void postprocessIntegrateData(double current_time, double new_time, int num_cycles) override;
 
     /*!
      * Interpolate the Eulerian velocity to the curvilinear mesh at the
@@ -466,31 +465,31 @@ public:
         int u_data_idx,
         const std::vector<SAMRAI::tbox::Pointer<SAMRAI::xfer::CoarsenSchedule<NDIM> > >& u_synch_scheds,
         const std::vector<SAMRAI::tbox::Pointer<SAMRAI::xfer::RefineSchedule<NDIM> > >& u_ghost_fill_scheds,
-        double data_time);
+        double data_time) override;
 
     /*!
      * Advance the positions of the Lagrangian structure using the forward Euler
      * method.
      */
-    void forwardEulerStep(double current_time, double new_time);
+    void forwardEulerStep(double current_time, double new_time) override;
 
     /*!
      * Advance the positions of the Lagrangian structure using the (explicit)
      * midpoint rule.
      */
-    void midpointStep(double current_time, double new_time);
+    void midpointStep(double current_time, double new_time) override;
 
     /*!
      * Advance the positions of the Lagrangian structure using the (explicit)
      * trapezoidal rule.
      */
-    void trapezoidalStep(double current_time, double new_time);
+    void trapezoidalStep(double current_time, double new_time) override;
 
     /*!
      * Compute the Lagrangian force at the specified time within the current
      * time interval.
      */
-    void computeLagrangianForce(double data_time);
+    void computeLagrangianForce(double data_time) override;
 
     /*!
      * Spread the Lagrangian force to the Cartesian grid at the specified time
@@ -500,18 +499,18 @@ public:
     spreadForce(int f_data_idx,
                 IBTK::RobinPhysBdryPatchStrategy* f_phys_bdry_op,
                 const std::vector<SAMRAI::tbox::Pointer<SAMRAI::xfer::RefineSchedule<NDIM> > >& f_prolongation_scheds,
-                double data_time);
+                double data_time) override;
 
     /*!
      * Indicate whether there are any internal fluid sources/sinks.
      */
-    bool hasFluidSources() const;
+    bool hasFluidSources() const override;
 
     /*!
      * Compute the Lagrangian source/sink density at the specified time within
      * the current time interval.
      */
-    void computeLagrangianFluidSource(double data_time);
+    void computeLagrangianFluidSource(double data_time) override;
 
     /*!
      * Spread the Lagrangian source/sink density to the Cartesian grid at the
@@ -521,7 +520,7 @@ public:
         int q_data_idx,
         IBTK::RobinPhysBdryPatchStrategy* q_phys_bdry_op,
         const std::vector<SAMRAI::tbox::Pointer<SAMRAI::xfer::RefineSchedule<NDIM> > >& q_prolongation_scheds,
-        double data_time);
+        double data_time) override;
 
     /*!
      * Get the default interpolation spec object used by the class.
@@ -558,7 +557,7 @@ public:
     /*!
      * \brief Register Eulerian variables with the parent IBHierarchyIntegrator.
      */
-    void registerEulerianVariables();
+    void registerEulerianVariables() override;
 
     /*!
      * Initialize Lagrangian data corresponding to the given AMR patch hierarchy
@@ -577,34 +576,34 @@ public:
         const std::vector<SAMRAI::tbox::Pointer<SAMRAI::xfer::RefineSchedule<NDIM> > >& u_ghost_fill_scheds,
         int integrator_step,
         double init_data_time,
-        bool initial_time);
+        bool initial_time) override;
 
     /*!
      * Register a load balancer and work load patch data index with the IB
      * strategy object.
      */
     void registerLoadBalancer(SAMRAI::tbox::Pointer<SAMRAI::mesh::LoadBalancer<NDIM> > load_balancer,
-                              int workload_data_idx);
+                              int workload_data_idx) override;
 
     /*!
      * Update work load estimates on each level of the patch hierarchy.
      */
     void updateWorkloadEstimates(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
-                                 int workload_data_idx);
+                                 int workload_data_idx) override;
 
     /*!
      * Begin redistributing Lagrangian data prior to regridding the patch
      * hierarchy.
      */
     void beginDataRedistribution(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
-                                 SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg);
+                                 SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) override;
 
     /*!
      * Complete redistributing Lagrangian data following regridding the patch
      * hierarchy.
      */
     void endDataRedistribution(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
-                               SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg);
+                               SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) override;
 
     /*!
      * Initialize data on a new level after it is inserted into an AMR patch
@@ -618,7 +617,7 @@ public:
                              bool can_be_refined,
                              bool initial_time,
                              SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchLevel<NDIM> > old_level,
-                             bool allocate_data);
+                             bool allocate_data) override;
 
     /*!
      * Reset cached hierarchy dependent data.
@@ -627,7 +626,7 @@ public:
      */
     void resetHierarchyConfiguration(SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchHierarchy<NDIM> > hierarchy,
                                      int coarsest_level,
-                                     int finest_level);
+                                     int finest_level) override;
 
     /*!
      * Set integer tags to "one" in cells where refinement of the given level
@@ -640,12 +639,12 @@ public:
                                double error_data_time,
                                int tag_index,
                                bool initial_time,
-                               bool uses_richardson_extrapolation_too);
+                               bool uses_richardson_extrapolation_too) override;
 
     /*!
      * Write out object state to the given database.
      */
-    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db);
+    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db) override;
 
     /*!
      * Write the equation_systems data to a restart file in the specified directory.
@@ -742,7 +741,7 @@ protected:
     /*
      * Indicates whether the integrator should output logging messages.
      */
-    bool d_do_log;
+    bool d_do_log = false;
 
     /*
      * Pointers to the patch hierarchy and gridding algorithm objects associated
@@ -750,23 +749,25 @@ protected:
      */
     SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > d_hierarchy;
     SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > d_gridding_alg;
-    bool d_is_initialized;
+    bool d_is_initialized = false;
 
     /*
      * The current time step interval.
      */
-    double d_current_time, d_new_time, d_half_time;
+    double d_current_time = std::numeric_limits<double>::quiet_NaN(),
+           d_new_time = std::numeric_limits<double>::quiet_NaN(),
+           d_half_time = std::numeric_limits<double>::quiet_NaN();
 
     /*
      * FE data associated with this object.
      */
-    std::vector<libMesh::Mesh*> d_meshes;
+    std::vector<libMesh::MeshBase*> d_meshes;
     int d_max_level_number;
     std::vector<libMesh::EquationSystems*> d_equation_systems;
 
-    const unsigned int d_num_parts;
+    const unsigned int d_num_parts = 1;
     std::vector<IBTK::FEDataManager*> d_fe_data_managers;
-    SAMRAI::hier::IntVector<NDIM> d_ghosts;
+    SAMRAI::hier::IntVector<NDIM> d_ghosts = 0;
     std::vector<libMesh::System*> d_X_systems, d_U_systems, d_F_systems, d_Q_systems, d_Phi_systems;
     std::vector<libMesh::PetscVector<double> *> d_X_current_vecs, d_X_new_vecs, d_X_half_vecs, d_X_IB_ghost_vecs;
     std::vector<libMesh::PetscVector<double> *> d_U_current_vecs, d_U_new_vecs, d_U_half_vecs;
@@ -774,7 +775,7 @@ protected:
     std::vector<libMesh::PetscVector<double>*> d_Q_half_vecs, d_Q_IB_ghost_vecs;
     std::vector<libMesh::PetscVector<double>*> d_Phi_half_vecs;
 
-    bool d_fe_equation_systems_initialized, d_fe_data_initialized;
+    bool d_fe_equation_systems_initialized = false, d_fe_data_initialized = false;
 
     /*
      * Method paramters.
@@ -783,40 +784,41 @@ protected:
     IBTK::FEDataManager::SpreadSpec d_default_spread_spec;
     std::vector<IBTK::FEDataManager::InterpSpec> d_interp_spec;
     std::vector<IBTK::FEDataManager::SpreadSpec> d_spread_spec;
-    bool d_split_normal_force, d_split_tangential_force;
-    bool d_use_jump_conditions;
+    bool d_split_normal_force = false, d_split_tangential_force = false;
+    bool d_use_jump_conditions = false;
     std::vector<libMesh::FEFamily> d_fe_family;
     std::vector<libMesh::Order> d_fe_order;
     std::vector<libMesh::QuadratureType> d_default_quad_type;
     std::vector<libMesh::Order> d_default_quad_order;
-    bool d_use_consistent_mass_matrix;
+    bool d_use_consistent_mass_matrix = true;
 
     /*
      * Data related to handling stress normalization.
      */
-    double d_epsilon;
-    bool d_has_stress_normalization_parts;
+    double d_epsilon = 0.0;
+    bool d_has_stress_normalization_parts = false;
     std::vector<bool> d_is_stress_normalization_part;
 
     /*
      * Data related to constraining overlaps between pairs of parts.
      */
-    double d_overlap_tolerance;
+    double d_overlap_tolerance = 0.0;
 
-    bool d_has_overlap_velocity_parts;
+    bool d_has_overlap_velocity_parts = false;
     std::vector<bool> d_is_overlap_velocity_part, d_is_overlap_velocity_master_part;
     std::vector<int> d_overlap_velocity_master_part;
     std::vector<std::map<libMesh::dof_id_type, libMesh::dof_id_type> > d_overlap_velocity_part_node_to_elem_map;
     std::vector<std::set<libMesh::dof_id_type> > d_overlap_velocity_part_ghost_idxs;
 
-    bool d_has_overlap_force_parts;
+    bool d_has_overlap_force_parts = false;
     std::vector<bool> d_is_overlap_force_part;
     std::vector<std::set<libMesh::dof_id_type> > d_overlap_force_part_ghost_idxs;
-    std::vector<boost::array<unsigned int, 2> > d_overlap_force_part_idxs;
-    std::vector<boost::array<std::map<libMesh::dof_id_type, std::map<unsigned int, libMesh::dof_id_type> >, 2> >
+    std::vector<std::array<unsigned int, 2> > d_overlap_force_part_idxs;
+    std::vector<std::array<std::map<libMesh::dof_id_type, std::map<unsigned int, libMesh::dof_id_type> >, 2> >
         d_overlapping_elem_map;
     std::vector<double> d_overlap_force_part_kappa;
-    std::vector<boost::array<libMesh::QBase*, 2> > d_overlap_force_part_qrule; // \todo let's try to fix this when we switch to C++11!
+    std::vector<std::array<libMesh::QBase*, 2> > d_overlap_force_part_qrule; // \todo let's try to fix this when we
+                                                                             // switch to C++11!
     std::vector<std::vector<double> > d_overlap_force_part_max_displacement;
 
     /*
@@ -850,7 +852,7 @@ protected:
     /*
      * Functions used to compute source/sink strength on the Lagrangian mesh.
      */
-    bool d_has_lag_body_source_parts;
+    bool d_has_lag_body_source_parts = false;
     std::vector<bool> d_lag_body_source_part;
     std::vector<LagBodySourceFcnData> d_lag_body_source_fcn_data;
 
@@ -898,7 +900,7 @@ private:
      *
      * \param from The value to copy to this object.
      */
-    IBFEMethod(const IBFEMethod& from);
+    IBFEMethod(const IBFEMethod& from) = delete;
 
     /*!
      * \brief Assignment operator.
@@ -909,14 +911,14 @@ private:
      *
      * \return A reference to this object.
      */
-    IBFEMethod& operator=(const IBFEMethod& that);
+    IBFEMethod& operator=(const IBFEMethod& that) = delete;
 
     /*!
      * Implementation of class constructor.
      */
     void commonConstructor(const std::string& object_name,
                            SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> input_db,
-                           const std::vector<libMesh::Mesh*>& meshes,
+                           const std::vector<libMesh::MeshBase*>& meshes,
                            int max_level_number,
                            bool register_for_restart,
                            const std::string& restart_read_dirname,

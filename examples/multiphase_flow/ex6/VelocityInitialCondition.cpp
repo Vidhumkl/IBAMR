@@ -75,13 +75,13 @@ VelocityInitialCondition::isTimeDependent() const
 } // isTimeDependent
 
 void
-VelocityInitialCondition::setDataOnPatchHierarchy(const int data_idx,
-                                                  Pointer<Variable<NDIM> > var,
-                                                  Pointer<PatchHierarchy<NDIM> > hierarchy,
-                                                  const double data_time,
-                                                  const bool initial_time,
-                                                  const int coarsest_ln_in,
-                                                  const int finest_ln_in)
+VelocityInitialCondition::setDataOnPatchHierarchy(const int /*data_idx*/,
+                                                  Pointer<Variable<NDIM> > /*var*/,
+                                                  Pointer<PatchHierarchy<NDIM> > /*hierarchy*/,
+                                                  const double /*data_time*/,
+                                                  const bool /*initial_time*/,
+                                                  const int /*coarsest_ln_in*/,
+                                                  const int /*finest_ln_in*/)
 {
     // Intentionally left blank
     return;
@@ -109,7 +109,7 @@ VelocityInitialCondition::setDataOnPatch(const int data_idx,
         const double* const patch_dx = patch_geom->getDx();
         double vol_cell = 1.0;
         for (int d = 0; d < NDIM; ++d) vol_cell *= patch_dx[d];
-        double alpha = d_num_interface_cells * std::pow(vol_cell, 1.0 / (double)NDIM);
+        double alpha = d_num_interface_cells * std::pow(vol_cell, 1.0 / static_cast<double>(NDIM));
         const Box<NDIM>& patch_box = patch->getBox();
         for (int axis = 0; axis < NDIM; ++axis)
         {

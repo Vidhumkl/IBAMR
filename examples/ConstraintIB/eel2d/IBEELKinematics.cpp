@@ -35,13 +35,13 @@
 #include <fstream>
 #include <iostream>
 
+#include "CartesianPatchGeometry.h"
 #include "IBEELKinematics.h"
 #include "PatchLevel.h"
-#include "CartesianPatchGeometry.h"
-#include "tbox/SAMRAI_MPI.h"
-#include "tbox/MathUtilities.h"
 #include "ibamr/namespaces.h"
 #include "muParser.h"
+#include "tbox/MathUtilities.h"
+#include "tbox/SAMRAI_MPI.h"
 
 namespace IBAMR
 {
@@ -66,7 +66,7 @@ static const double CUT_OFF_ANGLE = PII / 4;
 static const double CUT_OFF_RADIUS = 0.7;
 static const double LOWER_CUT_OFF_ANGLE = 7 * PII / 180;
 
-} // namespace unknown
+} // namespace
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -83,9 +83,7 @@ IBEELKinematics::IBEELKinematics(const std::string& object_name,
       d_incremented_angle_from_reference_axis(3),
       d_tagged_pt_position(3),
       d_mesh_width(NDIM),
-      d_parser_time(new double),
-      d_parser_posn(new double[NDIM]),
-      d_parser_normal(new double[NDIM])
+      d_parser_time(0.0)
 {
     // Read from inputdb
     d_initAngle_bodyAxis_x = input_db->getDoubleWithDefault("initial_angle_body_axis_0", 0.0);
@@ -109,12 +107,8 @@ IBEELKinematics::IBEELKinematics(const std::string& object_name,
         {
             deformationvel_function_strings.push_back("0.0");
             TBOX_WARNING("IBEELKinematics::IBEELKinematics() :\n"
-                         << "  no function corresponding to key ``"
-                         << key_name
-                         << " '' found for dimension = "
-                         << d
-                         << "; using def_vel = 0.0. "
-                         << std::endl);
+                         << "  no function corresponding to key ``" << key_name << " '' found for dimension = " << d
+                         << "; using def_vel = 0.0. " << std::endl);
         }
 
         d_deformationvel_parsers.push_back(new mu::Parser());
@@ -149,22 +143,22 @@ IBEELKinematics::IBEELKinematics(const std::string& object_name,
         (*cit)->DefineConst("PI", pi);
 
         // Variables
-        (*cit)->DefineVar("T", d_parser_time);
-        (*cit)->DefineVar("t", d_parser_time);
+        (*cit)->DefineVar("T", &d_parser_time);
+        (*cit)->DefineVar("t", &d_parser_time);
         for (int d = 0; d < NDIM; ++d)
         {
             std::ostringstream stream;
             stream << d;
             const std::string postfix = stream.str();
-            (*cit)->DefineVar("X" + postfix, &(d_parser_posn[d]));
-            (*cit)->DefineVar("x" + postfix, &(d_parser_posn[d]));
-            (*cit)->DefineVar("X_" + postfix, &(d_parser_posn[d]));
-            (*cit)->DefineVar("x_" + postfix, &(d_parser_posn[d]));
+            (*cit)->DefineVar("X" + postfix, d_parser_posn.data() + d);
+            (*cit)->DefineVar("x" + postfix, d_parser_posn.data() + d);
+            (*cit)->DefineVar("X_" + postfix, d_parser_posn.data() + d);
+            (*cit)->DefineVar("x_" + postfix, d_parser_posn.data() + d);
 
-            (*cit)->DefineVar("N" + postfix, &(d_parser_normal[d]));
-            (*cit)->DefineVar("n" + postfix, &(d_parser_normal[d]));
-            (*cit)->DefineVar("N_" + postfix, &(d_parser_normal[d]));
-            (*cit)->DefineVar("n_" + postfix, &(d_parser_normal[d]));
+            (*cit)->DefineVar("N" + postfix, d_parser_normal.data() + d);
+            (*cit)->DefineVar("n" + postfix, d_parser_normal.data() + d);
+            (*cit)->DefineVar("N_" + postfix, d_parser_normal.data() + d);
+            (*cit)->DefineVar("n_" + postfix, d_parser_normal.data() + d);
         }
     }
 
@@ -193,10 +187,6 @@ IBEELKinematics::~IBEELKinematics()
     {
         delete (*cit);
     }
-    delete d_parser_time;
-    delete[] d_parser_posn;
-    delete[] d_parser_normal;
-
     return;
 
 } // ~IBEELKinematics
@@ -225,8 +215,7 @@ IBEELKinematics::getFromRestart()
     else
     {
         TBOX_ERROR(d_object_name << ":  Restart database corresponding to " << d_object_name
-                                 << " not found in restart file."
-                                 << std::endl);
+                                 << " not found in restart file." << std::endl);
     }
 
     d_current_time = db->getDouble("d_current_time");
@@ -266,15 +255,15 @@ IBEELKinematics::setImmersedBodyLayout(Pointer<PatchHierarchy<NDIM> > patch_hier
     }
 
     // No. of points on the backbone and till head.
-    const int BodyNx = int(ceil(LENGTH_FISH / d_mesh_width[0]));
-    const int HeadNx = int(ceil(LENGTH_HEAD / d_mesh_width[0]));
+    const int BodyNx = static_cast<int>(ceil(LENGTH_FISH / d_mesh_width[0]));
+    const int HeadNx = static_cast<int>(ceil(LENGTH_HEAD / d_mesh_width[0]));
 
     d_ImmersedBodyData.clear();
     for (int i = 1; i <= HeadNx; ++i)
     {
         const double s = (i - 1) * d_mesh_width[0];
         const double section = sqrt(2 * WIDTH_HEAD * s - s * s);
-        const int NumPtsInSection = 2 * int(ceil(section / d_mesh_width[1]));
+        const int NumPtsInSection = 2 * static_cast<int>(ceil(section / d_mesh_width[1]));
         d_ImmersedBodyData.insert(std::make_pair(s, NumPtsInSection));
     }
 
@@ -282,7 +271,7 @@ IBEELKinematics::setImmersedBodyLayout(Pointer<PatchHierarchy<NDIM> > patch_hier
     {
         const double s = (i - 1) * d_mesh_width[0];
         const double section = WIDTH_HEAD * (LENGTH_FISH - s) / (LENGTH_FISH - LENGTH_HEAD);
-        const int NumPtsInHeight = 2 * int(ceil(section / d_mesh_width[1]));
+        const int NumPtsInHeight = 2 * static_cast<int>(ceil(section / d_mesh_width[1]));
         d_ImmersedBodyData.insert(std::make_pair(s, NumPtsInHeight));
     }
 
@@ -355,7 +344,7 @@ IBEELKinematics::transformManeuverAxisAndCalculateTangents(const double angleFro
     d_map_transformed_tangent.clear();
     d_map_transformed_sign.clear();
 
-    const int BodyNx = int(ceil(LENGTH_FISH / d_mesh_width[0]));
+    const int BodyNx = static_cast<int>(ceil(LENGTH_FISH / d_mesh_width[0]));
     std::vector<double> transformed_coord(2);
     for (int i = 0; i <= (BodyNx - 1); ++i)
     {
@@ -397,7 +386,7 @@ IBEELKinematics::setEelSpecificVelocity(const double time,
                                         const std::vector<double>& center_of_mass,
                                         const std::vector<double>& tagged_pt_position)
 {
-    *d_parser_time = time;
+    d_parser_time = time;
     const double angleFromHorizontal = d_initAngle_bodyAxis_x + incremented_angle_from_reference_axis[2];
 
     if (d_bodyIsManeuvering)
@@ -451,7 +440,7 @@ IBEELKinematics::setEelSpecificVelocity(const double time,
                 radius_circular_path = std::abs(CUT_OFF_RADIUS * std::pow((CUT_OFF_ANGLE / angle_bw_target_vision), 1));
             }
             // set the reference maneuver axis coordinates.
-            const int BodyNx = int(ceil(LENGTH_FISH / d_mesh_width[0]));
+            const int BodyNx = static_cast<int>(ceil(LENGTH_FISH / d_mesh_width[0]));
             if (radius_circular_path != __INFINITY)
             {
                 const double angle_sector = LENGTH_FISH / radius_circular_path;
@@ -595,7 +584,7 @@ IBEELKinematics::setShape(const double time, const std::vector<double>& /*increm
 
     // Find the deformed shape. Rotate the shape about center of mass.
     TBOX_ASSERT(d_new_time == time);
-    *d_parser_time = time;
+    d_parser_time = time;
     std::vector<double> shape_new(NDIM);
 
     int lag_idx = -1;

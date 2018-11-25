@@ -49,6 +49,7 @@
 #include "ibamr/INSHierarchyIntegrator.h"
 #include "ibamr/StaggeredStokesPhysicalBoundaryHelper.h"
 #include "ibamr/StaggeredStokesSolver.h"
+#include "ibamr/StaggeredStokesSolverManager.h"
 #include "ibamr/ibamr_enums.h"
 #include "ibtk/SideDataSynchronization.h"
 #include "tbox/Database.h"
@@ -121,19 +122,19 @@ public:
      * Stokes equations, then this function will initialize the default type of
      * convective operator, which may be set in the class input database.
      */
-    SAMRAI::tbox::Pointer<ConvectiveOperator> getConvectiveOperator();
+    SAMRAI::tbox::Pointer<ConvectiveOperator> getConvectiveOperator() override;
 
     /*!
      * Get the subdomain solver for the velocity subsystem.  Such solvers can be
      * useful in constructing block preconditioners.
      */
-    SAMRAI::tbox::Pointer<IBTK::PoissonSolver> getVelocitySubdomainSolver();
+    SAMRAI::tbox::Pointer<IBTK::PoissonSolver> getVelocitySubdomainSolver() override;
 
     /*!
      * Get the subdomain solver for the pressure subsystem.  Such solvers can be
      * useful in constructing block preconditioners.
      */
-    SAMRAI::tbox::Pointer<IBTK::PoissonSolver> getPressureSubdomainSolver();
+    SAMRAI::tbox::Pointer<IBTK::PoissonSolver> getPressureSubdomainSolver() override;
 
     /*!
      * Register a solver for the time-dependent incompressible Stokes equations.
@@ -161,8 +162,9 @@ public:
      * users to make an explicit call to initializeHierarchyIntegrator() prior
      * to calling initializePatchHierarchy().
      */
-    void initializeHierarchyIntegrator(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
-                                       SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg);
+    void
+    initializeHierarchyIntegrator(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
+                                  SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) override;
 
     /*!
      * Initialize the AMR patch hierarchy and data defined on the hierarchy at
@@ -178,18 +180,18 @@ public:
      * function.
      */
     void initializePatchHierarchy(SAMRAI::tbox::Pointer<SAMRAI::hier::PatchHierarchy<NDIM> > hierarchy,
-                                  SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg);
+                                  SAMRAI::tbox::Pointer<SAMRAI::mesh::GriddingAlgorithm<NDIM> > gridding_alg) override;
 
     /*!
      * Prepare to advance the data from current_time to new_time.
      */
-    void preprocessIntegrateHierarchy(double current_time, double new_time, int num_cycles = 1);
+    void preprocessIntegrateHierarchy(double current_time, double new_time, int num_cycles = 1) override;
 
     /*!
      * Synchronously advance each level in the hierarchy over the given time
      * increment.
      */
-    void integrateHierarchy(double current_time, double new_time, int cycle_num = 0);
+    void integrateHierarchy(double current_time, double new_time, int cycle_num = 0) override;
 
     /*!
      * Clean up data following call(s) to integrateHierarchy().
@@ -197,12 +199,12 @@ public:
     void postprocessIntegrateHierarchy(double current_time,
                                        double new_time,
                                        bool skip_synchronize_new_state_data,
-                                       int num_cycles = 1);
+                                       int num_cycles = 1) override;
 
     /*!
      * Regrid the patch hierarchy.
      */
-    void regridHierarchy();
+    void regridHierarchy() override;
 
     /*!
      * Setup solution and RHS vectors using state data maintained by the
@@ -234,7 +236,7 @@ protected:
     /*!
      * Determine the largest stable timestep on an individual patch.
      */
-    double getStableTimestep(SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch) const;
+    double getStableTimestep(SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch) const override;
 
     /*!
      * Initialize data on a new level after it is inserted into an AMR patch
@@ -246,7 +248,7 @@ protected:
                                         bool can_be_refined,
                                         bool initial_time,
                                         SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchLevel<NDIM> > old_level,
-                                        bool allocate_data);
+                                        bool allocate_data) override;
 
     /*!
      * Reset cached hierarchy dependent data.
@@ -254,7 +256,7 @@ protected:
     void
     resetHierarchyConfigurationSpecialized(SAMRAI::tbox::Pointer<SAMRAI::hier::BasePatchHierarchy<NDIM> > hierarchy,
                                            int coarsest_level,
-                                           int finest_level);
+                                           int finest_level) override;
 
     /*!
      * Set integer tags to "one" in cells where refinement of the given level
@@ -265,12 +267,12 @@ protected:
                                           double error_data_time,
                                           int tag_index,
                                           bool initial_time,
-                                          bool uses_richardson_extrapolation_too);
+                                          bool uses_richardson_extrapolation_too) override;
 
     /*!
      * Prepare variables for plotting.
      */
-    void setupPlotDataSpecialized();
+    void setupPlotDataSpecialized() override;
 
 private:
     /*!
@@ -278,7 +280,7 @@ private:
      *
      * \note This constructor is not implemented and should not be used.
      */
-    INSStaggeredHierarchyIntegrator();
+    INSStaggeredHierarchyIntegrator() = delete;
 
     /*!
      * \brief Copy constructor.
@@ -287,7 +289,7 @@ private:
      *
      * \param from The value to copy to this object.
      */
-    INSStaggeredHierarchyIntegrator(const INSStaggeredHierarchyIntegrator& from);
+    INSStaggeredHierarchyIntegrator(const INSStaggeredHierarchyIntegrator& from) = delete;
 
     /*!
      * \brief Assignment operator.
@@ -298,7 +300,7 @@ private:
      *
      * \return A reference to this object.
      */
-    INSStaggeredHierarchyIntegrator& operator=(const INSStaggeredHierarchyIntegrator& that);
+    INSStaggeredHierarchyIntegrator& operator=(const INSStaggeredHierarchyIntegrator& that) = delete;
 
     /*!
      * Compute the appropriate source term that must be added to the momentum
@@ -352,7 +354,9 @@ private:
     std::vector<SAMRAI::tbox::Pointer<SAMRAI::solv::SAMRAIVectorReal<NDIM, double> > > d_U_nul_vecs;
     bool d_vectors_need_init, d_explicitly_remove_nullspace;
 
-    std::string d_stokes_solver_type, d_stokes_precond_type, d_stokes_sub_precond_type;
+    std::string d_stokes_solver_type = StaggeredStokesSolverManager::UNDEFINED,
+                d_stokes_precond_type = StaggeredStokesSolverManager::UNDEFINED,
+                d_stokes_sub_precond_type = StaggeredStokesSolverManager::UNDEFINED;
     SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> d_stokes_solver_db, d_stokes_precond_db, d_stokes_sub_precond_db;
     SAMRAI::tbox::Pointer<StaggeredStokesSolver> d_stokes_solver;
     bool d_stokes_solver_needs_init;

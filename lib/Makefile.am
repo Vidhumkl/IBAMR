@@ -63,7 +63,6 @@ DIM_INDEPENDENT_SOURCES = \
 ../src/IB/IBHierarchyIntegrator.cpp \
 ../src/IB/IBHydrodynamicForceEvaluator.cpp \
 ../src/IB/IBImplicitStaggeredHierarchyIntegrator.cpp \
-../src/IB/IBImplicitStrategy.cpp \
 ../src/IB/IBInstrumentPanel.cpp \
 ../src/IB/IBInstrumentationSpec.cpp \
 ../src/IB/IBInstrumentationSpecFactory.cpp \
@@ -75,7 +74,6 @@ DIM_INDEPENDENT_SOURCES = \
 ../src/IB/IBLagrangianSourceStrategy.cpp \
 ../src/IB/IBLevelSetMethod.cpp \
 ../src/IB/IBMethod.cpp \
-../src/IB/IBMethodPostProcessStrategy.cpp \
 ../src/IB/IBRedundantInitializer.cpp \
 ../src/IB/IBRodForceSpec.cpp \
 ../src/IB/IBRodForceSpecFactory.cpp \

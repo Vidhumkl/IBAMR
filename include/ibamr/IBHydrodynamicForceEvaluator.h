@@ -101,7 +101,7 @@ public:
      * \param mu Fluid Viscosity.
      * \param current_time Current integration time.
      */
-    IBHydrodynamicForceEvaluator(const std::string& object_name,
+    IBHydrodynamicForceEvaluator(std::string object_name,
                                  double rho,
                                  double mu,
                                  double current_time,
@@ -274,7 +274,7 @@ public:
     /*!
      * \brief Override the putToDatabase method of the base Serializable class.
      */
-    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db);
+    void putToDatabase(SAMRAI::tbox::Pointer<SAMRAI::tbox::Database> db) override;
 
     /*!
      * \brief Create the control volume plot data and register it with the VisIt data writer
@@ -301,7 +301,7 @@ private:
      *
      * \param from The value to copy to this object.
      */
-    IBHydrodynamicForceEvaluator(const IBHydrodynamicForceEvaluator& from);
+    IBHydrodynamicForceEvaluator(const IBHydrodynamicForceEvaluator& from) = delete;
 
     /*!
      * \brief Assignment operator.
@@ -312,7 +312,7 @@ private:
      *
      * \return A reference to this object.
      */
-    IBHydrodynamicForceEvaluator& operator=(const IBHydrodynamicForceEvaluator& that);
+    IBHydrodynamicForceEvaluator& operator=(const IBHydrodynamicForceEvaluator& that) = delete;
 
     /*!
      * \brief Reset weight of the cell face to face area.
